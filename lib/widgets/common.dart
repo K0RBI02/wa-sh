@@ -69,7 +69,6 @@ class Tap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = C.of(context);
     return Semantics(
       button: true,
       selected: selected,
