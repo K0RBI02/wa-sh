@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "wa:sh einrichten",
+        "description": "Verbindet die wa:sh-App mit Home Assistant. Danach bekommst du einen Kopplungscode für die App.",
+        "data": {
+          "name": "Name"
+        },
+        "data_description": {
+          "name": "Wird als Raum und Titel verwendet, z. B. „Waschküche“."
+        }
+      }
+    },
+    "create_entry": {
+      "default": "**Kopplungscode: `{code}`** (gilt {minutes} Minuten)\n\nIn der wa:sh-App: Menü → Meine Programme → Home Assistant → Adresse dieses Home Assistant eintragen, Code eingeben, **Koppeln**.\n\nNeuen Code gibt es jederzeit über **Konfigurieren**."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Neues Handy koppeln",
+        "description": "**Kopplungscode: `{code}`** (gilt {minutes} Minuten)\n\nIn der wa:sh-App: Menü → Meine Programme → Home Assistant → Adresse eintragen, Code eingeben, **Koppeln**."
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Läuft"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "idle": "Frei",
+          "running": "Läuft",
+          "finished": "Fertig"
+        }
+      },
+      "finish": {
+        "name": "Fertig um"
+      },
+      "remaining": {
+        "name": "Restzeit"
+      },
+      "progress": {
+        "name": "Fortschritt"
+      },
+      "program": {
+        "name": "Programm"
+      }
+    }
+  }
+}

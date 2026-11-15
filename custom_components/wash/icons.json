@@ -1,0 +1,26 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "default": "mdi:play-circle-outline",
+        "state": {
+          "off": "mdi:stop-circle-outline"
+        }
+      }
+    },
+    "sensor": {
+      "finish": {
+        "default": "mdi:timer-check-outline"
+      },
+      "remaining": {
+        "default": "mdi:timer-sand"
+      },
+      "progress": {
+        "default": "mdi:progress-clock"
+      },
+      "program": {
+        "default": "mdi:format-list-bulleted"
+      }
+    }
+  }
+}

@@ -22,3 +22,7 @@ pubspec.lock.bak
 *.jks
 *.keystore
 key.properties
+
+# Python (HA-Integration)
+__pycache__/
+.pytest_cache/

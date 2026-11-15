@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up wa:sh",
+        "description": "Connects the wa:sh app to Home Assistant. You'll get a pairing code for the app next.",
+        "data": {
+          "name": "Name"
+        },
+        "data_description": {
+          "name": "Used as area and title, e.g. “Laundry room”."
+        }
+      }
+    },
+    "create_entry": {
+      "default": "**Pairing code: `{code}`** (valid for {minutes} minutes)\n\nIn the wa:sh app: Menu → My programs → Home Assistant → enter the address of this Home Assistant and the code, then tap **Pair**.\n\nYou can get a new code any time via **Configure**."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Pair a new phone",
+        "description": "**Pairing code: `{code}`** (valid for {minutes} minutes)\n\nIn the wa:sh app: Menu → My programs → Home Assistant → enter the address and the code, then tap **Pair**."
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Running"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "idle": "Idle",
+          "running": "Running",
+          "finished": "Finished"
+        }
+      },
+      "finish": {
+        "name": "Finishes at"
+      },
+      "remaining": {
+        "name": "Time remaining"
+      },
+      "progress": {
+        "name": "Progress"
+      },
+      "program": {
+        "name": "Program"
+      }
+    }
+  }
+}

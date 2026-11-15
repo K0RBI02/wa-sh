@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../ha.dart';
 import '../models.dart';
@@ -173,7 +174,7 @@ class _ProgramCardState extends State<_ProgramCard> {
   }
 }
 
-/// Home Assistant: URL + Token, „Verbindung testen“, Status.
+/// Home Assistant: Adresse + Kopplungscode aus der wa:sh-Integration.
 class _HomeAssistantCard extends StatefulWidget {
   const _HomeAssistantCard();
 
@@ -184,33 +185,41 @@ class _HomeAssistantCard extends StatefulWidget {
 class _HomeAssistantCardState extends State<_HomeAssistantCard> {
   final _ha = HomeAssistant.instance;
   late final _url = TextEditingController(text: _ha.url);
-  late final _token = TextEditingController(text: _ha.token);
+  final _code = TextEditingController();
   bool _busy = false;
   bool _open = false;
-  bool _showToken = false;
   String? _result;
   bool _ok = false;
 
   @override
   void dispose() {
     _url.dispose();
-    _token.dispose();
+    _code.dispose();
     super.dispose();
   }
 
-  Future<void> _test() async {
+  Future<void> _run(Future<String?> Function() action, String success) async {
+    FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _result = null;
     });
-    await _ha.configure(url: _url.text, token: _token.text);
-    final err = await _ha.test();
+    final err = await action();
     if (!mounted) return;
+    if (err == null) HapticFeedback.lightImpact();
     setState(() {
       _busy = false;
       _ok = err == null;
-      _result = err ?? 'Verbunden – Sensoren werden gesendet';
+      _result = err ?? success;
+      if (err == null) _code.clear();
     });
+  }
+
+  Future<void> _pair() => _run(() => _ha.pair(url: _url.text, code: _code.text), 'Gekoppelt');
+  Future<void> _test() => _run(_ha.test, 'Erreichbar');
+  Future<void> _unpair() async {
+    await _ha.unpair();
+    if (mounted) setState(() => _result = null);
   }
 
   InputDecoration _deco(String label, String hint) => InputDecoration(
@@ -225,17 +234,62 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
         focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
       );
 
+  Widget get _spinner => const Padding(
+        padding: EdgeInsets.all(12),
+        child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
+      );
+
+  /// Noch nicht gekoppelt: Adresse + Code.
+  List<Widget> _pairForm() => [
+        TextField(
+          controller: _url,
+          keyboardType: TextInputType.url,
+          autocorrect: false,
+          style: font(size: 15, weight: FontWeight.w500),
+          decoration: _deco('Adresse', 'http://homeassistant.local:8123'),
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          controller: _code,
+          autocorrect: false,
+          enableSuggestions: false,
+          textCapitalization: TextCapitalization.characters,
+          style: font(size: 15, weight: FontWeight.w500).copyWith(fontFeatures: tabular, letterSpacing: 1.5),
+          decoration: _deco('Kopplungscode', 'z. B. K7Q-2M9'),
+          onSubmitted: (_) => _pair(),
+        ),
+        const SizedBox(height: 16),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _busy ? _spinner : PillButton(label: 'Koppeln', height: 46, onTap: _pair),
+        ),
+      ];
+
+  /// Gekoppelt: Testen + Trennen.
+  List<Widget> _pairedActions() => [
+        const SizedBox(height: 4),
+        Row(children: [
+          _busy ? _spinner : PillButton(label: 'Verbindung testen', height: 46, onTap: _test),
+          const Spacer(),
+          TextButton(
+            onPressed: _busy ? null : _unpair,
+            style: TextButton.styleFrom(foregroundColor: C.ink, minimumSize: const Size(44, 44)),
+            child: Text('Trennen', style: font(size: 15, weight: FontWeight.w600)),
+          ),
+        ]),
+      ];
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: _ha,
       builder: (context, _) {
         final status = _result ??
-            (_ha.enabled
-                ? (_ha.lastError ?? (_ha.lastSuccess != null ? 'Verbunden' : 'Eingerichtet'))
-                : 'Optional – schickt Status und Restzeit an Home Assistant');
-        final good = _result != null ? _ok : (_ha.enabled && _ha.lastError == null);
-        final dot = (_ha.enabled || _result != null)
+            (_ha.paired
+                ? (_ha.lastError ?? 'Gekoppelt mit „${_ha.name}“')
+                : 'Optional: In Home Assistant „Integration hinzufügen → wa:sh“ wählen, dann hier den Code eingeben.');
+        final good = _result != null ? _ok : (_ha.paired && _ha.lastError == null);
+        final dot = (_ha.paired || _result != null)
             ? Container(
                 width: 8,
                 height: 8,
@@ -293,38 +347,7 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
                 Expanded(child: Text(status, style: font(size: 13, color: C.muted))),
               ]),
               const SizedBox(height: 14),
-              TextField(
-                controller: _url,
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-                style: font(size: 15, weight: FontWeight.w500),
-                decoration: _deco('Adresse', 'http://homeassistant.local:8123'),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _token,
-                obscureText: !_showToken,
-                autocorrect: false,
-                enableSuggestions: false,
-                style: font(size: 15, weight: FontWeight.w500),
-                decoration: _deco('Long-Lived Access Token', 'aus deinem HA-Profil → Sicherheit').copyWith(
-                  suffixIcon: IconButton(
-                    tooltip: _showToken ? 'Token verbergen' : 'Token zeigen',
-                    icon: Icon(_showToken ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20),
-                    onPressed: () => setState(() => _showToken = !_showToken),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _busy
-                    ? const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
-                      )
-                    : PillButton(label: 'Verbindung testen', height: 46, onTap: _test),
-              ),
+              if (_ha.paired) ..._pairedActions() else ..._pairForm(),
                           ],
                         ),
                       ),

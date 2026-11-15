@@ -7,3 +7,5 @@ analyzer:
     - ios/**
     # Quellen, die tool/setup.py ins Plugin kopiert – dort werden sie analysiert.
     - tool/**
+    - custom_components/**
+    - tests/**

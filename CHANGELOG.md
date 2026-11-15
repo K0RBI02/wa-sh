@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 – unveröffentlicht
+
+### Neu
+- Eigene Home-Assistant-Integration „wa:sh“ (HACS): Geräte Waschmaschine und
+  Trockner mit Status, „Läuft“, Fertig um, Restzeit, Fortschritt, Programm;
+  Ereignisse `wash_started` / `wash_finished` / `wash_collected`.
+- Kopplung über einen Code aus Home Assistant statt Long-Lived-Token.
+- HA schaltet selbst pünktlich auf „Fertig“ und behält den Stand über Neustarts.
+- Mit Nabu Casa: Ausweich-Adresse über die Cloud.
+- Home-Assistant-Bereich in den Einstellungen einklappbar.
+
+### Geändert
+- Die alte REST-Anbindung (`sensor.wash_*` per Token) entfällt; ein gespeicherter
+  Token wird beim Update gelöscht. Einmal neu koppeln.
+
 ## 0.2.0 – 2026-11-15
 
 ### Neu

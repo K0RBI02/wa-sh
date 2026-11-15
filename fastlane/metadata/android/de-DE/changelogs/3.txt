@@ -1,0 +1,3 @@
+• Eigene Home-Assistant-Integration mit Geräten für Waschmaschine und Trockner
+• Kopplung per Code statt Token
+• Home-Assistant-Bereich einklappbar

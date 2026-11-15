@@ -87,23 +87,46 @@ darüber. Abhilfe: `env -u JAVA_TOOL_OPTIONS flutter run` bzw. als Alias.
 
 ## Home Assistant
 
-In der App unter **Menü → Meine Programme → Home Assistant** Adresse und einen
-*Long-Lived Access Token* eintragen (HA → Profil → Sicherheit → Token erstellen),
-dann „Verbindung testen“. Ab dann meldet wa:sh bei jedem Start, „Schon fertig“,
-Ablauf und „Abgeholt“:
+wa:sh bringt eine eigene Home-Assistant-Integration mit (`custom_components/wash`).
+Die App meldet direkt an Home Assistant – ohne Zwischenserver, ohne Token.
 
-| Entität | Zustand | Attribute |
-|---|---|---|
-| `sensor.wash_waschmaschine` / `sensor.wash_trockner` | `idle` · `running` · `finished` | `program`, `start`, `end`, `progress` |
-| `sensor.wash_waschmaschine_fertig` / `sensor.wash_trockner_fertig` | Zeitstempel „fertig um“ (sonst `unknown`) | – |
+### Installieren
 
-Der Zeitstempel-Sensor reicht für Automationen – HA löst pünktlich aus, auch wenn
-das Handy schläft. Ist HA gerade nicht erreichbar, schickt die App den letzten
-Stand später nach. Lokale `http://`-Adressen sind erlaubt; von unterwegs geht es
-über Nabu Casa oder Tailscale.
+**Über HACS:** HACS → ⋮ → *Benutzerdefinierte Repositories* →
+`https://github.com/K0RBI02/wa-sh`, Typ *Integration* → **wa:sh** herunterladen →
+Home Assistant neu starten.
 
-Hinweis: Über die REST-API angelegte Sensoren verschwinden nach einem HA-Neustart,
-bis die App das nächste Mal etwas meldet.
+**Von Hand:** Ordner `custom_components/wash` nach `/config/custom_components/wash`
+kopieren, Home Assistant neu starten.
+
+### Koppeln
+
+1. Home Assistant → *Einstellungen → Geräte & Dienste → Integration hinzufügen* → **wa:sh**.
+2. Namen vergeben (z. B. „Waschküche“) – HA zeigt einen **Kopplungscode** wie `K7Q-2M9` (10 Min. gültig).
+3. In der App: *Menü → Meine Programme → Home Assistant* → Adresse und Code eintragen → **Koppeln**.
+
+Ein weiteres Handy koppelt man über **Konfigurieren** am Eintrag – das erzeugt
+einen neuen Code. Mit Nabu Casa bekommt die App zusätzlich eine Cloud-Adresse und
+meldet auch, wenn sie das Heimnetz nicht erreicht.
+
+### Was in HA ankommt
+
+Zwei Geräte – **Waschmaschine** und **Trockner** – mit je:
+
+| Entität | Inhalt |
+|---|---|
+| Status | Frei · Läuft · Fertig |
+| Läuft | Binärsensor, an solange die Maschine läuft |
+| Fertig um | Zeitstempel |
+| Restzeit | Minuten |
+| Fortschritt | % |
+| Programm | z. B. „Bunt 40°“ |
+
+Die Integration rechnet das Ende selbst aus: Sie schaltet pünktlich auf „Fertig“,
+auch wenn das Handy aus ist, und behält den Stand über HA-Neustarts.
+
+Für Automationen gibt es außerdem die Ereignisse `wash_started`, `wash_finished`
+und `wash_collected` (Daten: `machine`, `name`, `program`, `end`).
 
 Beispiel – Durchsage und Licht, wenn die Wäsche fertig ist:
 
@@ -111,15 +134,15 @@ Beispiel – Durchsage und Licht, wenn die Wäsche fertig ist:
 automation:
   - alias: "Wäsche fertig – Durchsage"
     triggers:
-      - trigger: time
-        at: sensor.wash_waschmaschine_fertig
+      - trigger: event
+        event_type: wash_finished
     actions:
       - action: tts.speak
         target:
           entity_id: tts.google_translate_de_de
         data:
           media_player_entity_id: media_player.wohnzimmer
-          message: "Die Wäsche ist fertig – ab in den Keller."
+          message: "{{ trigger.event.data.name }} ist fertig – ab in den Keller."
       - action: light.turn_on
         target:
           entity_id: light.flur
@@ -131,7 +154,10 @@ automation:
 
 ```bash
 flutter analyze
-flutter test        # Kernlogik: Laufzeiten, parallele Maschinen, Speichern, HA-Daten
+flutter test        # Kernlogik: Laufzeiten, parallele Maschinen, Speichern, HA-Kopplung
+
+pip install pytest-homeassistant-custom-component
+python -m pytest    # HA-Integration gegen ein echtes Home Assistant
 ```
 
 Jeder Push auf `main` läuft durch die CI (GitHub Actions): Setup, Analyse, Tests und
@@ -180,7 +206,7 @@ lib/
   main.dart                 Start, Navigation bei Tipp auf Erinnerungen, Schnellstart
   models.dart               Maschine, Programm, Durchgang
   store.dart                Zustand + Speicherung (shared_preferences)
-  ha.dart                   Home-Assistant-Anbindung (REST, Token verschlüsselt)
+  ha.dart                   Kopplung + Meldungen an die HA-Integration
   notifications.dart        geplante Erinnerungen pro Maschine
   theme.dart                Farben, Schrift (Instrument Sans, assets/fonts, OFL)
   widgets/doodle.dart       Doodle-Renderer mit dezenten Animationen
@@ -193,6 +219,8 @@ lib/
 packages/wash_live/          (erzeugt) natives Plugin für die „läuft“-Anzeige
 tool/wash_live/              Quellen dafür: android/ (Java), ios/ (Swift), lib/
 tool/ios_widget/             iOS-Widget-Erweiterung (Live Activity, Dynamic Island)
+custom_components/wash/      Home-Assistant-Integration (HACS)
+tests/                       Tests der Integration (pytest)
 ```
 
 Bei aktivierter Systemeinstellung „Bewegung reduzieren“ bleiben alle Animationen stehen.
