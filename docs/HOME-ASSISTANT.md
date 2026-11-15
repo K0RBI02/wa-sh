@@ -35,10 +35,43 @@ Two devices – **Washer** (*Waschmaschine*) and **Dryer** (*Trockner*) – each
 | Finishes at | Timestamp |
 | Time remaining | Minutes |
 | Progress | % |
-| Program | e.g. “Bunt 40°” |
+| Program | e.g. “Colours 40°” |
+| Program to start | Select – the two favourites from the app |
+| Start | Button – starts the timer with the selected program |
+| Collected | Button – laundry collected (or cancel the timer) |
 
 The integration works out the end time itself: it switches to “Finished” on time,
 even if the phone is off, and keeps its state across Home Assistant restarts.
+
+## Start and collect from Home Assistant
+
+Press **Start** or **Collected** on the device page, put the buttons on a dashboard,
+or use the actions in automations and voice commands:
+
+```yaml
+action: wash.start
+data:
+  machine: dry        # wash | dry
+  program: "1"        # name or number (1/2) of an app program – or:
+  # minutes: 45
+```
+
+```yaml
+action: wash.collect
+data:
+  machine: wash
+```
+
+The app picks up changes made in Home Assistant whenever it opens or comes back to
+the foreground (and every minute while it is open) – then it schedules its
+reminders and shows the running display. Whatever changed last wins, so a timer
+started in Home Assistant while the phone was offline isn't overwritten. Program
+names for the select come from the app, so open it once after pairing.
+
+> While the app is closed, a timer started in Home Assistant has no phone reminders
+> yet – use the `wash_finished` event for a notification from Home Assistant.
+
+## Events
 
 For automations there are also the events `wash_started`, `wash_finished`
 and `wash_collected` (data: `machine`, `name`, `program`, `end`).

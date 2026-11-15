@@ -17,12 +17,17 @@ class WashStore extends ChangeNotifier {
 
   static const _kPrograms = 'programs.v1';
   static const _kRuns = 'runs.v1';
+  static const _kChanged = 'changed.v1';
 
   final SharedPreferences _prefs;
   final Map<Machine, List<Program>> _programs = {
     for (final m in Machine.values) m: List.of(defaultPrograms[m]!),
   };
   final Map<Machine, Run> _runs = {};
+
+  /// Wann sich der Stand je Maschine zuletzt geändert hat – für den Abgleich
+  /// mit Home Assistant (neuere Änderung gewinnt).
+  final Map<Machine, DateTime> _changed = {};
   Timer? _ticker;
   final Set<Machine> _doneReported = {};
 
@@ -35,12 +40,16 @@ class WashStore extends ChangeNotifier {
       s._reportFinished();
       s.notifyListeners();
     });
-    // Home Assistant auf den aktuellen Stand bringen.
+    // Home Assistant: eigenen Stand melden, Stand aus HA übernehmen.
+    final ha = HomeAssistant.instance
+      ..onRemote = s.applyRemote
+      ..programsProvider = s._programsJson;
     for (final m in Machine.values) {
       final r = s._runs[m];
       if (r != null && r.isDone(DateTime.now())) s._doneReported.add(m);
-      HomeAssistant.instance.report(m, r);
+      ha.report(m, r, changed: s._changedAt(m));
     }
+    ha.sync();
     // Native „läuft“-Anzeige nach einem Neustart wieder herstellen.
     for (final r in s._runs.values) {
       if (!r.isDone(DateTime.now())) _showLive(r);
@@ -60,6 +69,14 @@ class WashStore extends ChangeNotifier {
           }
         }
       }
+      final c = _prefs.getString(_kChanged);
+      if (c != null) {
+        (jsonDecode(c) as Map<String, dynamic>).forEach((k, v) {
+          final m = Machine.values.where((x) => x.name == k).firstOrNull;
+          final d = DateTime.tryParse('$v');
+          if (m != null && d != null) _changed[m] = d;
+        });
+      }
       final r = _prefs.getString(_kRuns);
       if (r != null) {
         for (final e in (jsonDecode(r) as List).cast<Map<String, dynamic>>()) {
@@ -78,6 +95,7 @@ class WashStore extends ChangeNotifier {
       jsonEncode({for (final m in Machine.values) m.name: _programs[m]!.map((p) => p.toJson()).toList()}),
     );
     await _prefs.setString(_kRuns, jsonEncode(_runs.values.map((r) => r.toJson()).toList()));
+    await _prefs.setString(_kChanged, jsonEncode({for (final e in _changed.entries) e.key.name: e.value.toIso8601String()}));
   }
 
   // ── Programme ────────────────────────────────────────────
@@ -88,7 +106,23 @@ class WashStore extends ChangeNotifier {
     _programs[m]![index] = p;
     notifyListeners();
     _save();
+    _syncSoon();
   }
+
+  Timer? _syncTimer;
+
+  /// Programme erst an HA melden, wenn das Tippen vorbei ist.
+  void _syncSoon() {
+    _syncTimer?.cancel();
+    _syncTimer = Timer(const Duration(seconds: 2), HomeAssistant.instance.sync);
+  }
+
+  Map<String, Object?> _programsJson() => {
+        for (final m in Machine.values) m.name: _programs[m]!.map((p) => p.toJson()).toList(),
+      };
+
+  /// Ohne gespeicherten Zeitpunkt (ältere Version): Start des Laufs bzw. „lange her“.
+  DateTime _changedAt(Machine m) => _changed[m] ?? _runs[m]?.start ?? DateTime(2000);
 
   // ── Durchgänge ───────────────────────────────────────────
 
@@ -99,11 +133,12 @@ class WashStore extends ChangeNotifier {
     final now = DateTime.now();
     final run = Run(machine: m, programName: programName, start: now, end: now.add(Duration(minutes: minutes)));
     _runs[m] = run;
+    _changed[m] = now;
     notifyListeners();
     await _save();
     await Notifier.instance.requestPermissions();
     _doneReported.remove(m);
-    HomeAssistant.instance.report(m, run);
+    HomeAssistant.instance.report(m, run, changed: now);
     await Notifier.instance.scheduleRun(run);
     await _showLive(run);
     return run;
@@ -120,10 +155,11 @@ class WashStore extends ChangeNotifier {
       start: r.start.isAfter(now) ? now : r.start,
       end: now,
     );
+    _changed[m] = now;
     notifyListeners();
     await _save();
     _doneReported.add(m);
-    HomeAssistant.instance.report(m, _runs[m]);
+    HomeAssistant.instance.report(m, _runs[m], changed: now);
     // Plant nur noch das „noch nicht abgeholt?“ in 15 Minuten.
     await Notifier.instance.scheduleRun(_runs[m]!);
     await WashLive.stop(m.name);
@@ -137,11 +173,12 @@ class WashStore extends ChangeNotifier {
 
   Future<void> snooze(Machine m) => Notifier.instance.snooze(m, const Duration(minutes: 5));
 
-  Future<void> _clear(Machine m) async {
+  Future<void> _clear(Machine m, {bool report = true}) async {
     _runs.remove(m);
     _doneReported.remove(m);
+    if (report) _changed[m] = DateTime.now();
     notifyListeners();
-    HomeAssistant.instance.report(m, null);
+    if (report) HomeAssistant.instance.report(m, null, changed: _changed[m]);
     await _save();
     await Notifier.instance.cancel(m);
     await WashLive.stop(m.name);
@@ -152,7 +189,50 @@ class WashStore extends ChangeNotifier {
     final now = DateTime.now();
     for (final r in _runs.values) {
       if (r.isDone(now) && _doneReported.add(r.machine)) {
-        HomeAssistant.instance.report(r.machine, r);
+        HomeAssistant.instance.report(r.machine, r, changed: _changedAt(r.machine));
+      }
+    }
+  }
+
+  /// Stand aus Home Assistant übernehmen – nur wenn er neuer ist als der eigene
+  /// (dort gestartet, abgeholt oder „Schon fertig“). Wird nicht zurückgemeldet.
+  Future<void> applyRemote(List<RemoteState> states) async {
+    for (final r in states) {
+      final m = r.machine;
+      final local = _changed[m];
+      // 1 s Spielraum für Uhren, die nicht ganz gleich gehen.
+      if (local != null && !r.changed.isAfter(local.add(const Duration(seconds: 1)))) continue;
+      final current = _runs[m];
+      if (r.state == 'idle') {
+        _changed[m] = r.changed;
+        if (current != null) {
+          await _clear(m, report: false);
+        } else {
+          await _save();
+        }
+        continue;
+      }
+      if (r.start == null || r.end == null) continue;
+      _changed[m] = r.changed;
+      if (current != null && current.start == r.start && current.end == r.end) {
+        await _save();
+        continue;
+      }
+      final run = Run(machine: m, programName: r.program ?? t.customTime, start: r.start!, end: r.end!);
+      _runs[m] = run;
+      final done = run.isDone(DateTime.now());
+      if (done) {
+        _doneReported.add(m);
+      } else {
+        _doneReported.remove(m);
+      }
+      notifyListeners();
+      await _save();
+      await Notifier.instance.scheduleRun(run);
+      if (done) {
+        await WashLive.stop(m.name);
+      } else {
+        await _showLive(run);
       }
     }
   }
@@ -168,6 +248,7 @@ class WashStore extends ChangeNotifier {
   @override
   void dispose() {
     _ticker?.cancel();
+    _syncTimer?.cancel();
     super.dispose();
   }
 }

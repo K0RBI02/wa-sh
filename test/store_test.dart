@@ -93,4 +93,36 @@ void main() {
     expect(store.run(Machine.wash), isNull);
     expect(store.run(Machine.dry), isNull);
   });
+
+  group('Abgleich mit Home Assistant', () {
+    setUp(boot);
+
+    RemoteState remote(String state, DateTime changed, {int minutes = 60}) => RemoteState(
+          machine: Machine.wash,
+          state: state,
+          changed: changed,
+          program: 'Handtücher 60°',
+          start: state == 'idle' ? null : changed,
+          end: state == 'idle' ? null : changed.add(Duration(minutes: minutes)),
+        );
+
+    test('in HA gestartet → App übernimmt den Lauf', () async {
+      final now = DateTime.now();
+      await store.applyRemote([remote('running', now.add(const Duration(seconds: 5)))]);
+      expect(store.run(Machine.wash)?.programName, 'Handtücher 60°');
+      expect(store.run(Machine.dry), isNull);
+    });
+
+    test('in HA abgeholt → App gibt die Maschine frei', () async {
+      await store.start(Machine.wash, 'Bunt 40°', 105);
+      await store.applyRemote([remote('idle', DateTime.now().add(const Duration(seconds: 5)))]);
+      expect(store.run(Machine.wash), isNull);
+    });
+
+    test('älterer Stand aus HA ändert nichts', () async {
+      await store.start(Machine.wash, 'Bunt 40°', 105);
+      await store.applyRemote([remote('idle', DateTime.now().subtract(const Duration(minutes: 5)))]);
+      expect(store.run(Machine.wash)?.programName, 'Bunt 40°');
+    });
+  });
 }

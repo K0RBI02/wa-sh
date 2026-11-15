@@ -1,0 +1,38 @@
+start:
+  fields:
+    machine:
+      required: true
+      selector:
+        select:
+          options:
+            - wash
+            - dry
+          translation_key: machine
+    program:
+      example: "1"
+      selector:
+        text:
+    minutes:
+      selector:
+        number:
+          min: 1
+          max: 600
+          unit_of_measurement: min
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: wash
+collect:
+  fields:
+    machine:
+      required: true
+      selector:
+        select:
+          options:
+            - wash
+            - dry
+          translation_key: machine
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: wash

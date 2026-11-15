@@ -17,8 +17,9 @@ from homeassistant.helpers.typing import ConfigType
 from .const import CONF_CLOUDHOOK_URL, CONF_WEBHOOK_ID, DOMAIN
 from .data import WashData
 from .pairing import async_register_view
+from .services import async_setup_services
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.SELECT, Platform.SENSOR]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -28,6 +29,7 @@ type WashConfigEntry = ConfigEntry[WashData]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Kopplungs-Endpunkt einmalig bereitstellen."""
     async_register_view(hass)
+    async_setup_services(hass)
     return True
 
 

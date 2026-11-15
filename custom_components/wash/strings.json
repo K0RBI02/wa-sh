@@ -70,6 +70,73 @@
       "program": {
         "name": "Program"
       }
+    },
+    "select": {
+      "program_select": {
+        "name": "Program to start"
+      }
+    },
+    "button": {
+      "start": {
+        "name": "Start"
+      },
+      "collect": {
+        "name": "Collected"
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Start",
+      "description": "Starts a machine's timer – the app picks it up the next time it opens.",
+      "fields": {
+        "machine": {
+          "name": "Machine",
+          "description": "Washer or dryer."
+        },
+        "program": {
+          "name": "Program",
+          "description": "Name or number (1/2) of a program from the app. Empty: the selected one."
+        },
+        "minutes": {
+          "name": "Minutes",
+          "description": "Custom duration instead of a program."
+        },
+        "config_entry_id": {
+          "name": "Entry",
+          "description": "Only needed with several laundry rooms."
+        }
+      }
+    },
+    "collect": {
+      "name": "Collected",
+      "description": "Laundry collected or timer cancelled – machine is free again.",
+      "fields": {
+        "machine": {
+          "name": "Machine",
+          "description": "Washer or dryer."
+        },
+        "config_entry_id": {
+          "name": "Entry",
+          "description": "Only needed with several laundry rooms."
+        }
+      }
+    }
+  },
+  "selector": {
+    "machine": {
+      "options": {
+        "wash": "Washer",
+        "dry": "Dryer"
+      }
+    }
+  },
+  "exceptions": {
+    "no_entry": {
+      "message": "wa:sh is not set up."
+    },
+    "unknown_program": {
+      "message": "Program not found – open the app first so it reports its programs."
     }
   }
 }

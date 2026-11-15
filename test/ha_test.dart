@@ -105,4 +105,41 @@ void main() {
     expect(ha.paired, isFalse);
     expect(await ha.test(), 'Noch nicht gekoppelt');
   });
+
+  test('Abgleich: Stand aus HA wird gemeldet', () async {
+    final now = DateTime.now().toUtc();
+    fake.answer = (url, body) => url.endsWith('/pair')
+        ? const HaResponse(200, {'name': 'W', 'webhook_id': 'id'})
+        : HaResponse(200, {
+            'ok': true,
+            'machines': {
+              'wash': {
+                'state': 'running',
+                'program': 'Handtücher 60°',
+                'start': now.toIso8601String(),
+                'end': now.add(const Duration(minutes: 130)).toIso8601String(),
+                'changed': now.toIso8601String(),
+              },
+              'dry': {'state': 'idle', 'changed': null},
+            },
+          });
+    final got = <RemoteState>[];
+    ha.onRemote = got.addAll;
+    ha.programsProvider = () => {'wash': [], 'dry': []};
+    await ha.pair(url: 'ha.local', code: 'C');
+    got.clear();
+    await ha.sync();
+    expect(fake.calls.last.$2, containsPair('type', 'sync'));
+    expect((fake.calls.last.$2 as Map)['programs'], isNotNull);
+    expect(got, hasLength(1), reason: 'Trockner ohne Zeitstempel wird ignoriert');
+    expect(got.single.machine, Machine.wash);
+    expect(got.single.state, 'running');
+    expect(got.single.end!.difference(got.single.start!).inMinutes, 130);
+  });
+
+  test('Meldung trägt den Änderungszeitpunkt', () {
+    final changed = DateTime.utc(2026, 11, 15, 20);
+    final p = ha.payloadFor(Machine.wash, null, changed: changed);
+    expect(p['changed'], '2026-11-15T20:00:00.000Z');
+  });
 }

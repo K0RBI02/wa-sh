@@ -70,6 +70,73 @@
       "program": {
         "name": "Programm"
       }
+    },
+    "select": {
+      "program_select": {
+        "name": "Programm wählen"
+      }
+    },
+    "button": {
+      "start": {
+        "name": "Starten"
+      },
+      "collect": {
+        "name": "Abgeholt"
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Starten",
+      "description": "Startet den Timer einer Maschine – die App übernimmt ihn beim nächsten Öffnen.",
+      "fields": {
+        "machine": {
+          "name": "Maschine",
+          "description": "Waschmaschine oder Trockner."
+        },
+        "program": {
+          "name": "Programm",
+          "description": "Name oder Nummer (1/2) eines Programms aus der App. Leer: das gewählte."
+        },
+        "minutes": {
+          "name": "Minuten",
+          "description": "Eigene Laufzeit statt eines Programms."
+        },
+        "config_entry_id": {
+          "name": "Eintrag",
+          "description": "Nur nötig bei mehreren Waschküchen."
+        }
+      }
+    },
+    "collect": {
+      "name": "Abgeholt",
+      "description": "Wäsche abgeholt bzw. Timer abbrechen – Maschine wieder frei.",
+      "fields": {
+        "machine": {
+          "name": "Maschine",
+          "description": "Waschmaschine oder Trockner."
+        },
+        "config_entry_id": {
+          "name": "Eintrag",
+          "description": "Nur nötig bei mehreren Waschküchen."
+        }
+      }
+    }
+  },
+  "selector": {
+    "machine": {
+      "options": {
+        "wash": "Waschmaschine",
+        "dry": "Trockner"
+      }
+    }
+  },
+  "exceptions": {
+    "no_entry": {
+      "message": "wa:sh ist nicht eingerichtet."
+    },
+    "unknown_program": {
+      "message": "Programm nicht gefunden – erst die App öffnen, damit sie ihre Programme meldet."
     }
   }
 }

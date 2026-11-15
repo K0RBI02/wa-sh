@@ -8,6 +8,11 @@
 - Start a timer from a link or an NFC sticker at the machine (`wash://start?…`);
   the new website creates such stickers.
 
+### Home Assistant
+- Start and collect from Home Assistant: program select, Start and Collected
+  buttons per machine, actions `wash.start` / `wash.collect`.
+- The app and Home Assistant sync both ways; the most recent change wins.
+
 ## 0.4.0 – 2026-11-15
 
 ### App

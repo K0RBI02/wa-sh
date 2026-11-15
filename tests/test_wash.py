@@ -217,3 +217,76 @@ async def test_entfernen_raeumt_auf(hass: HomeAssistant, client) -> None:
     assert await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert hass.states.get("sensor.waschmaschine_status") is None
+
+
+PROGRAMS = {
+    "wash": [{"name": "Bunt 40°", "minutes": 105}, {"name": "Handtücher 60°", "minutes": 130}],
+    "dry": [{"name": "Baumwolle", "minutes": 100}, {"name": "Pflegeleicht", "minutes": 60}],
+}
+
+
+async def test_starten_und_abholen_aus_ha(hass: HomeAssistant, client) -> None:
+    entry, _ = await _setup(hass, client)
+    url = f"/api/webhook/{entry.data['webhook_id']}"
+    reg = er.async_get(hass)
+    select = reg.async_get_entity_id("select", DOMAIN, f"{entry.entry_id}_wash_program_select")
+    start = reg.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_wash_start")
+    collect = reg.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_wash_collect")
+
+    # Ohne Programme der App: nicht verfügbar
+    assert hass.states.get(start).state == "unavailable"
+
+    resp = await client.post(url, json={"type": "sync", "programs": PROGRAMS})
+    body = await resp.json()
+    assert body["machines"]["wash"]["state"] == "idle"
+    await hass.async_block_till_done()
+    assert hass.states.get(select).attributes["options"] == ["Bunt 40°", "Handtücher 60°"]
+    assert hass.states.get(collect).state == "unavailable", "frei → nichts abzuholen"
+
+    await hass.services.async_call("select", "select_option", {"entity_id": select, "option": "Handtücher 60°"}, blocking=True)
+    started = async_capture_events(hass, "wash_started")
+    await hass.services.async_call("button", "press", {"entity_id": start}, blocking=True)
+    await hass.async_block_till_done()
+    assert hass.states.get(_entity(hass, entry, "wash", "status")).state == "running"
+    assert hass.states.get(_entity(hass, entry, "wash", "program")).state == "Handtücher 60°"
+    assert int(hass.states.get(_entity(hass, entry, "wash", "remaining")).state) == 130
+    assert len(started) == 1
+
+    # Die App holt sich den Stand beim Abgleich
+    body = await (await client.post(url, json={"type": "sync"})).json()
+    assert body["machines"]["wash"]["state"] == "running"
+    assert body["machines"]["wash"]["program"] == "Handtücher 60°"
+    assert body["machines"]["wash"]["changed"]
+
+    await hass.services.async_call("button", "press", {"entity_id": collect}, blocking=True)
+    await hass.async_block_till_done()
+    assert hass.states.get(_entity(hass, entry, "wash", "status")).state == "idle"
+
+
+async def test_aktionen_start_und_collect(hass: HomeAssistant, client) -> None:
+    entry, _ = await _setup(hass, client)
+    url = f"/api/webhook/{entry.data['webhook_id']}"
+    await client.post(url, json={"type": "sync", "programs": PROGRAMS})
+    await hass.services.async_call(DOMAIN, "start", {"machine": "dry", "program": "2"}, blocking=True)
+    assert hass.states.get(_entity(hass, entry, "dry", "program")).state == "Pflegeleicht"
+    await hass.services.async_call(DOMAIN, "start", {"machine": "wash", "minutes": 30, "program": "Kurz"}, blocking=True)
+    assert int(hass.states.get(_entity(hass, entry, "wash", "remaining")).state) == 30
+    await hass.services.async_call(DOMAIN, "collect", {"machine": "dry"}, blocking=True)
+    assert hass.states.get(_entity(hass, entry, "dry", "status")).state == "idle"
+    with pytest.raises(Exception):
+        await hass.services.async_call(DOMAIN, "start", {"machine": "dry", "program": "Gibt es nicht"}, blocking=True)
+
+
+async def test_aeltere_meldung_der_app_wird_ignoriert(hass: HomeAssistant, client) -> None:
+    entry, _ = await _setup(hass, client)
+    url = f"/api/webhook/{entry.data['webhook_id']}"
+    await client.post(url, json={"type": "sync", "programs": PROGRAMS})
+    await hass.services.async_call(DOMAIN, "start", {"machine": "wash", "program": "1"}, blocking=True)
+    # Handy war offline und meldet jetzt „frei“ mit altem Zeitstempel
+    old = (dt_util.utcnow() - timedelta(minutes=10)).isoformat()
+    body = await (await client.post(url, json={"type": "update", "machine": "wash", "state": "idle", "changed": old})).json()
+    assert body["machines"]["wash"]["state"] == "running"
+    assert hass.states.get(_entity(hass, entry, "wash", "status")).state == "running"
+    # Neuere Meldung gewinnt
+    body = await (await client.post(url, json={"type": "update", "machine": "wash", "state": "idle", "changed": dt_util.utcnow().isoformat()})).json()
+    assert body["machines"]["wash"]["state"] == "idle"

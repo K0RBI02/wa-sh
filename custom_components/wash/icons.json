@@ -13,6 +13,27 @@
       "program": {
         "default": "mdi:format-list-bulleted"
       }
+    },
+    "select": {
+      "program_select": {
+        "default": "mdi:format-list-bulleted"
+      }
+    },
+    "button": {
+      "start": {
+        "default": "mdi:play"
+      },
+      "collect": {
+        "default": "mdi:basket-check-outline"
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "service": "mdi:play"
+    },
+    "collect": {
+      "service": "mdi:basket-check-outline"
     }
   }
 }

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from http import HTTPStatus
 import logging
 from typing import Any
@@ -46,6 +46,9 @@ class MachineState:
     program: str | None = None
     start: datetime | None = None
     end: datetime | None = None
+    # Wann sich der Stand zuletzt geändert hat (App oder HA). Bei
+    # widersprüchlichen Meldungen gewinnt die neuere.
+    changed: datetime | None = None
 
     def effective(self, now: datetime) -> str:
         """„running“ wird von selbst zu „finished“, sobald die Zeit um ist –
@@ -78,6 +81,7 @@ class MachineState:
             "program": self.program,
             "start": self.start.isoformat() if self.start else None,
             "end": self.end.isoformat() if self.end else None,
+            "changed": self.changed.isoformat() if self.changed else None,
         }
 
     @classmethod
@@ -88,7 +92,17 @@ class MachineState:
             program=raw.get("program"),
             start=_parse(raw.get("start")),
             end=_parse(raw.get("end")),
+            changed=_parse(raw.get("changed")),
         )
+
+
+def _valid_program(p: Any) -> bool:
+    return (
+        isinstance(p, dict)
+        and isinstance(p.get("name"), str)
+        and isinstance(p.get("minutes"), (int, float))
+        and 0 < p["minutes"] <= 600
+    )
 
 
 def _parse(value: Any) -> datetime | None:
@@ -114,6 +128,10 @@ class WashData:
         self._timers: dict[str, CALLBACK_TYPE] = {}
         self._tick: CALLBACK_TYPE | None = None
         self.last_seen: datetime | None = None
+        # Die zwei Lieblingsprogramme je Maschine, wie die App sie meldet.
+        self.programs: dict[str, list[dict[str, Any]]] = {m: [] for m in MACHINES}
+        # Auswahl im Programm-Feld je Maschine (Name).
+        self.selected: dict[str, str | None] = {m: None for m in MACHINES}
 
     # ── Laden / Speichern ─────────────────────────────────────────
 
@@ -123,6 +141,12 @@ class WashData:
             if isinstance(raw.get(m), dict):
                 self.machines[m] = MachineState.from_dict(raw[m])
         self.last_seen = _parse(raw.get("last_seen"))
+        for m in MACHINES:
+            progs = raw.get("programs", {}).get(m)
+            if isinstance(progs, list):
+                self.programs[m] = [p for p in progs if _valid_program(p)]
+            sel = raw.get("selected", {}).get(m)
+            self.selected[m] = sel if isinstance(sel, str) else None
         now = dt_util.utcnow()
         for m in MACHINES:
             s = self.machines[m]
@@ -142,6 +166,8 @@ class WashData:
     def _snapshot(self) -> dict[str, Any]:
         data: dict[str, Any] = {m: s.as_dict() for m, s in self.machines.items()}
         data["last_seen"] = self.last_seen.isoformat() if self.last_seen else None
+        data["programs"] = self.programs
+        data["selected"] = self.selected
         return data
 
     @callback
@@ -171,9 +197,13 @@ class WashData:
         self.last_seen = dt_util.utcnow()
         kind = body.get("type", "update")
 
-        if kind == "ping":
+        if isinstance(body.get("programs"), dict):
+            self._set_programs(body["programs"])
+
+        if kind in ("ping", "sync"):
             self._save()
-            return web.json_response({"ok": True, "name": self.entry.title})
+            async_dispatcher_send(self.hass, self.signal)
+            return web.json_response({"ok": True, "name": self.entry.title, "machines": self._machines_json()})
 
         if kind != "update":
             return web.json_response({"ok": False, "error": "unbekannter Typ"}, status=HTTPStatus.BAD_REQUEST)
@@ -185,8 +215,71 @@ class WashData:
                 {"ok": False, "error": "machine/state ungültig"}, status=HTTPStatus.BAD_REQUEST
             )
 
-        self.async_apply(machine, MachineState.from_dict(body))
-        return web.json_response({"ok": True})
+        new = MachineState.from_dict(body)
+        old = self.machines[machine]
+        if new.changed is None:
+            new.changed = dt_util.utcnow()
+        # Ältere Meldung als der Stand in HA (z. B. Handy war offline, während
+        # in HA gestartet/abgeholt wurde) → ignorieren, App holt sich den neuen Stand.
+        if old.changed is None or new.changed >= old.changed:
+            self.async_apply(machine, new)
+        return web.json_response({"ok": True, "machines": self._machines_json()})
+
+    def _machines_json(self) -> dict[str, Any]:
+        now = dt_util.utcnow()
+        return {m: {**s.as_dict(), "state": s.effective(now)} for m, s in self.machines.items()}
+
+    @callback
+    def _set_programs(self, raw: dict[str, Any]) -> None:
+        for m in MACHINES:
+            progs = raw.get(m)
+            if isinstance(progs, list):
+                self.programs[m] = [
+                    {"name": str(p["name"]), "minutes": int(p["minutes"])} for p in progs if _valid_program(p)
+                ]
+
+    # ── Steuerung aus Home Assistant ─────────────────────────────
+
+    def program_names(self, machine: str) -> list[str]:
+        return [p["name"] for p in self.programs[machine]]
+
+    @callback
+    def async_select(self, machine: str, name: str) -> None:
+        self.selected[machine] = name
+        self._save()
+        async_dispatcher_send(self.hass, self.signal)
+
+    def resolve_program(self, machine: str, program: str | int | None) -> dict[str, Any] | None:
+        """Programm über Namen oder Nummer (1/2) finden; ohne Angabe die Auswahl."""
+        progs = self.programs[machine]
+        if program is None:
+            program = self.selected[machine]
+        if isinstance(program, int) or (isinstance(program, str) and program.isdigit()):
+            i = int(program) - 1
+            return progs[i] if 0 <= i < len(progs) else None
+        for p in progs:
+            if isinstance(program, str) and p["name"].casefold() == program.casefold():
+                return p
+        return progs[0] if progs and program is None else None
+
+    @callback
+    def async_start(self, machine: str, *, name: str, minutes: int) -> None:
+        """Timer aus HA starten – die App übernimmt ihn beim nächsten Abgleich."""
+        now = dt_util.utcnow()
+        self.async_apply(
+            machine,
+            MachineState(
+                state=STATE_RUNNING,
+                program=name,
+                start=now,
+                end=now + timedelta(minutes=minutes),
+                changed=now,
+            ),
+        )
+
+    @callback
+    def async_collect(self, machine: str) -> None:
+        self.async_apply(machine, MachineState(state=STATE_IDLE, changed=dt_util.utcnow()))
 
     @callback
     def async_apply(self, machine: str, new: MachineState) -> None:

@@ -54,7 +54,7 @@ class HomeAssistant extends ChangeNotifier {
       debugPrint('Kopplung nicht lesbar: $e');
     }
     await ha._prefs.remove(_kLegacyToken);
-    ha._retry = Timer.periodic(const Duration(minutes: 1), (_) => ha._flush());
+    ha._retry = Timer.periodic(const Duration(minutes: 1), (_) => ha.sync());
     return ha;
   }
 
@@ -67,6 +67,12 @@ class HomeAssistant extends ChangeNotifier {
   String _cloud = '';
   Timer? _retry;
   final Map<Machine, Map<String, Object?>> _pending = {};
+
+  /// Stand aus HA übernehmen (z. B. dort gestartet oder abgeholt) – setzt der Store.
+  void Function(List<RemoteState> machines)? onRemote;
+
+  /// Die Lieblingsprogramme für die Auswahl in HA – liefert der Store.
+  Map<String, Object?> Function()? programsProvider;
 
   /// Letztes Ergebnis für die Anzeige in den Einstellungen.
   String? lastError;
@@ -117,7 +123,7 @@ class HomeAssistant extends ChangeNotifier {
       lastError = null;
       lastSuccess = DateTime.now();
       notifyListeners();
-      await _flush();
+      await sync();
       return null;
     } catch (e) {
       return _describe(e);
@@ -127,7 +133,7 @@ class HomeAssistant extends ChangeNotifier {
   /// Verbindung prüfen. `null` = erreichbar, sonst Fehlertext.
   Future<String?> test() async {
     if (!paired) return t.haErrNotPaired;
-    final err = await _post({'type': 'ping'});
+    final (err, _) = await _post({'type': 'ping', if (programsProvider != null) 'programs': programsProvider!()});
     lastError = err;
     if (err == null) lastSuccess = DateTime.now();
     notifyListeners();
@@ -148,16 +154,45 @@ class HomeAssistant extends ChangeNotifier {
   }
 
   /// Neuen Stand einer Maschine melden (`run == null` → frei).
-  Future<void> report(Machine m, Run? run) async {
-    _pending[m] = payloadFor(m, run);
+  Future<void> report(Machine m, Run? run, {DateTime? changed}) async {
+    _pending[m] = payloadFor(m, run, changed: changed);
     await _flush();
+  }
+
+  bool _syncing = false;
+
+  /// Abgleich mit HA: eigene Änderungen senden, dann den Stand aus HA holen
+  /// (dort gestartet oder abgeholt?) und die Programme für die Auswahl melden.
+  Future<void> sync() async {
+    if (!paired || _syncing) return;
+    _syncing = true;
+    try {
+      await _flush();
+      if (_pending.isNotEmpty) return; // nicht erreichbar
+      final (err, _) = await _post({'type': 'sync', if (programsProvider != null) 'programs': programsProvider!()});
+      lastError = err;
+      if (err == null) lastSuccess = DateTime.now();
+      notifyListeners();
+    } finally {
+      _syncing = false;
+    }
+  }
+
+  void _takeMachines(Object? body) {
+    if (body is! Map || body['machines'] is! Map) return;
+    final list = <RemoteState>[];
+    for (final e in (body['machines'] as Map).entries) {
+      final r = RemoteState.fromJson('${e.key}', e.value);
+      if (r != null) list.add(r);
+    }
+    if (list.isNotEmpty) onRemote?.call(list);
   }
 
   Future<void> _flush() async {
     if (!paired || _pending.isEmpty) return;
     for (final m in List.of(_pending.keys)) {
       final p = _pending[m]!;
-      final err = await _post(p);
+      final (err, _) = await _post(p);
       if (err != null) {
         lastError = err;
         break; // nicht erreichbar – später nochmal
@@ -169,30 +204,35 @@ class HomeAssistant extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Erst lokal, dann (falls vorhanden) über Nabu Casa.
-  Future<String?> _post(Map<String, Object?> body) async {
+  /// Erst lokal, dann (falls vorhanden) über Nabu Casa. Antwortet HA mit dem
+  /// aktuellen Stand, wird er übernommen.
+  Future<(String?, Object?)> _post(Map<String, Object?> body) async {
     final targets = ['$_url/api/webhook/$_webhook', if (_cloud.isNotEmpty) _cloud];
     String? err;
     for (final target in targets) {
       try {
         final res = await _sendJson(target, body);
-        if (res.status >= 200 && res.status < 300) return null;
+        if (res.status >= 200 && res.status < 300) {
+          _takeMachines(res.body);
+          return (null, res.body);
+        }
         err = res.status == 404 || res.status == 405
             ? t.haErrRemoved
             : t.haErrStatus(res.status);
-        if (res.status < 500) return err; // kein Netzproblem – Ausweichweg hilft nicht
+        if (res.status < 500) return (err, null); // kein Netzproblem – Ausweichweg hilft nicht
       } catch (e) {
         err = _describe(e);
       }
     }
-    return err;
+    return (err, null);
   }
 
   /// Was an HA geht – öffentlich nur für Tests.
   @visibleForTesting
-  Map<String, Object?> payloadFor(Machine m, Run? run, {DateTime? now}) {
+  Map<String, Object?> payloadFor(Machine m, Run? run, {DateTime? now, DateTime? changed}) {
     now ??= DateTime.now();
     return {
+      if (changed != null) 'changed': changed.toUtc().toIso8601String(),
       'type': 'update',
       'machine': m == Machine.wash ? 'wash' : 'dry',
       'state': run == null ? 'idle' : (run.isDone(now) ? 'finished' : 'running'),
@@ -263,3 +303,41 @@ class HaResponse {
 }
 
 typedef Sender = Future<HaResponse> Function(String url, Object body);
+
+/// Stand einer Maschine laut Home Assistant.
+class RemoteState {
+  const RemoteState({
+    required this.machine,
+    required this.state,
+    required this.changed,
+    this.program,
+    this.start,
+    this.end,
+  });
+
+  final Machine machine;
+
+  /// `idle`, `running` oder `finished`.
+  final String state;
+  final DateTime changed;
+  final String? program;
+  final DateTime? start;
+  final DateTime? end;
+
+  static RemoteState? fromJson(String machine, Object? raw) {
+    if (raw is! Map) return null;
+    final m = Machine.values.where((x) => x.name == machine).firstOrNull;
+    final changed = DateTime.tryParse('${raw['changed']}');
+    final state = raw['state'];
+    if (m == null || changed == null || state is! String) return null;
+    DateTime? time(String key) => raw[key] is String ? DateTime.tryParse(raw[key] as String)?.toLocal() : null;
+    return RemoteState(
+      machine: m,
+      state: state,
+      changed: changed.toLocal(),
+      program: raw['program'] as String?,
+      start: time('start'),
+      end: time('end'),
+    );
+  }
+}

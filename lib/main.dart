@@ -168,6 +168,12 @@ class _WashAppState extends State<WashApp> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Zurück in der App: in Home Assistant gestartet oder abgeholt?
+    if (state == AppLifecycleState.resumed) HomeAssistant.instance.sync();
+  }
+
+  @override
   void didChangePlatformBrightness() {
     final dark = PlatformDispatcher.instance.platformBrightness == Brightness.dark;
     if (dark == C.dark) return;
