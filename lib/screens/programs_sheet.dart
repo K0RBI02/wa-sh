@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,22 +31,22 @@ Future<void> showProgramsSheet(BuildContext context) {
   );
 }
 
-/// „Meine Programme“: öffnet auf 75 %, lässt sich hochziehen. Kopf mit
-/// Schließen und „Speichern“ bleiben stehen, nur der Inhalt scrollt.
+/// „Meine Programme“: fest 75 % hoch. Kopf mit Schließen und „Speichern“
+/// bleiben stehen, nur der Inhalt dazwischen scrollt.
 class _ProgramsSheet extends StatelessWidget {
   const _ProgramsSheet();
 
   @override
   Widget build(BuildContext context) {
-    final insets = MediaQuery.of(context).viewInsets.bottom;
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.75,
-      minChildSize: 0.4,
-      maxChildSize: 1,
-      snap: true,
-      snapSizes: const [0.75],
-      builder: (context, scroll) => Column(
+    final mq = MediaQuery.of(context);
+    final insets = mq.viewInsets.bottom;
+    // Mit Tastatur rutscht das Popup nach oben und wird nur so hoch wie Platz ist.
+    final height = math.min(mq.size.height * 0.75, mq.size.height - insets - mq.padding.top - 24);
+    return Padding(
+      padding: EdgeInsets.only(bottom: insets),
+      child: SizedBox(
+      height: height,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Fester Kopf
@@ -79,8 +81,7 @@ class _ProgramsSheet extends StatelessWidget {
               children: [
                 // Scrollender Inhalt – unten Platz für den schwebenden Knopf
                 ListView(
-                  controller: scroll,
-                  padding: EdgeInsets.fromLTRB(24, 8, 24, 112 + insets),
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 112),
                   children: const [_ProgramsList()],
                 ),
                 // Schwebendes „Speichern“ mit sanftem Übergang nach oben
@@ -89,7 +90,7 @@ class _ProgramsSheet extends StatelessWidget {
                   right: 0,
                   bottom: 0,
                   child: Container(
-                      padding: EdgeInsets.fromLTRB(24, 28, 24, 20 + insets),
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -105,6 +106,7 @@ class _ProgramsSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
