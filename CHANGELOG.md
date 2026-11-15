@@ -1,12 +1,18 @@
 # Changelog
 
+## 0.5.2 – unreleased
+
+### App
+- App icon and Home Assistant icon: just the laundry basket on white (Home
+  Assistant gets a light version for dark themes).
+- Launch screen: the laundry basket on white; in dark mode the same basket in
+  light lines on a dark background.
+
 ## 0.5.1 – 2026-11-15
 
 ### App
 - Dark mode reworked: the pastel cards and step screens stay light with dark
   text (“light islands”), only the neutral surfaces go dark.
-- Launch screen: the laundry basket on white; in dark mode the same basket in
-  light lines on a dark background.
 - My programs: minus button stays dark on pastel, no underline on the names.
 
 ## 0.5.0 – 2026-11-15

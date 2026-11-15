@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="custom_components/wash/brand/icon@2x.png" width="112" alt="wa:sh icon: a laundry basket">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="custom_components/wash/brand/dark_icon@2x.png">
+    <img src="custom_components/wash/brand/icon@2x.png" width="112" alt="wa:sh icon: a laundry basket">
+  </picture>
 </p>
 
 <h1 align="center">wa:sh</h1>
