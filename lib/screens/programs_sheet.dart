@@ -18,7 +18,7 @@ Future<void> showProgramsSheet(BuildContext context) {
     useSafeArea: true,
     showDragHandle: true,
     backgroundColor: C.white,
-    barrierColor: C.ink.withAlpha(115),
+    barrierColor: C.dark ? Colors.black.withAlpha(150) : C.ink.withAlpha(115),
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
     builder: (_) => const _ProgramsSheet(),
   );
@@ -148,8 +148,8 @@ class _ProgramCardState extends State<_ProgramCard> {
                 counterText: '',
                 isDense: true,
                 contentPadding: const EdgeInsets.only(top: 6, bottom: 6),
-                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: C.line, width: 1.5)),
-                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.line, width: 1.5)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
               ),
             ),
           ),
@@ -235,8 +235,8 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
         floatingLabelBehavior: FloatingLabelBehavior.always,
         isDense: true,
         contentPadding: const EdgeInsets.only(top: 6, bottom: 8),
-        enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: C.line, width: 1.5)),
-        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.line, width: 1.5)),
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
       );
 
   Widget get _spinner => const Padding(
@@ -299,7 +299,7 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: good ? const Color(0xFF3E8E41) : const Color(0xFFC0392B),
+                  color: good ? C.good : C.bad,
                   shape: BoxShape.circle,
                 ),
               )
@@ -322,14 +322,14 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
                     padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
                     child: ExcludeSemantics(
                       child: Row(children: [
-                        const Icon(Icons.home_outlined, size: 22, color: C.ink),
+                        Icon(Icons.home_outlined, size: 22, color: C.ink),
                         const SizedBox(width: 10),
                         Expanded(child: Text('Home Assistant', style: font(size: 18, weight: FontWeight.w600))),
                         if (dot != null && !_open) ...[dot, const SizedBox(width: 10)],
                         AnimatedRotation(
                           turns: _open ? 0.5 : 0,
                           duration: const Duration(milliseconds: 250),
-                          child: const Icon(Icons.expand_more, color: C.ink),
+                          child: Icon(Icons.expand_more, color: C.ink),
                         ),
                       ]),
                     ),
@@ -385,7 +385,7 @@ class _NotificationsRow extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
             child: ExcludeSemantics(
               child: Row(children: [
-                const Icon(Icons.notifications_none_rounded, size: 22, color: C.ink),
+                Icon(Icons.notifications_none_rounded, size: 22, color: C.ink),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -394,7 +394,7 @@ class _NotificationsRow extends StatelessWidget {
                     Text(t.notificationsSub, style: font(size: 13, color: C.muted)),
                   ]),
                 ),
-                const Icon(Icons.open_in_new_rounded, size: 20, color: C.ink),
+                Icon(Icons.open_in_new_rounded, size: 20, color: C.ink),
               ]),
             ),
           ),

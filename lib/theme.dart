@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 
 import 'models.dart';
 
+/// Farben der App. Hell und dunkel – umgeschaltet über [C.dark], das die App
+/// aus der Systemeinstellung setzt. Die Doodles kehren sich dabei von selbst
+/// um: Striche werden hell, Flächen dunkel.
 class C {
-  static const ink = Color(0xFF212529);
-  static const doodle = Color(0xFF1A1A1A);
-  static const bg = Color(0xFFF5F6F7);
-  static const white = Color(0xFFFFFFFF);
-  static const pink = Color(0xFFF7D6D2);
-  static const green = Color(0xFFEEF6DC);
-  static const peach = Color(0xFFFCE3CF);
-  static const sub = Color(0xFF3B4046);
-  static const muted = Color(0xFF5C6168);
-  static const line = Color(0xFFD6D9DC);
+  C._();
+
+  static bool dark = false;
+
+  static Color _(int light, int night) => Color(dark ? night : light);
+
+  static Color get ink => _(0xFF212529, 0xFFE9ECEF);
+  static Color get doodle => _(0xFF1A1A1A, 0xFFE9ECEF);
+  static Color get bg => _(0xFFF5F6F7, 0xFF111315);
+  static Color get white => _(0xFFFFFFFF, 0xFF1D2024);
+  static Color get pink => _(0xFFF7D6D2, 0xFF4D3734);
+  static Color get green => _(0xFFEEF6DC, 0xFF39422C);
+  static Color get peach => _(0xFFFCE3CF, 0xFF4D3B2D);
+  static Color get sub => _(0xFF3B4046, 0xFFC4C9CE);
+  static Color get muted => _(0xFF5C6168, 0xFF9AA0A6);
+  static Color get line => _(0xFFD6D9DC, 0xFF3A3F45);
+  static Color get good => _(0xFF3E8E41, 0xFF6CC070);
+  static Color get bad => _(0xFFC0392B, 0xFFEF7A6D);
 
   static Color machine(Machine m) => m == Machine.wash ? pink : peach;
 }
@@ -23,7 +34,7 @@ const fontFamily = 'InstrumentSans';
 TextStyle font({
   double size = 15,
   FontWeight weight = FontWeight.w400,
-  Color color = C.ink,
+  Color? color,
   double? height,
   double? spacing,
   List<FontFeature>? features,
@@ -32,7 +43,7 @@ TextStyle font({
       fontFamily: fontFamily,
       fontSize: size,
       fontWeight: weight,
-      color: color,
+      color: color ?? C.ink,
       height: height,
       letterSpacing: spacing,
       fontFeatures: features,
@@ -47,6 +58,7 @@ const tabular = [FontFeature.tabularFigures()];
 ThemeData buildTheme() {
   final base = ThemeData(
     useMaterial3: true,
+    brightness: C.dark ? Brightness.dark : Brightness.light,
     colorSchemeSeed: C.ink,
     scaffoldBackgroundColor: C.bg,
     fontFamily: fontFamily,

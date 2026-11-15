@@ -13,7 +13,7 @@ class DoodlePart {
   DoodlePart.path(
     String d, {
     this.fill,
-    this.stroke = C.doodle,
+    this.stroke = inkStroke,
     this.width = 4,
     this.anim = DoodleAnim.none,
     this.pivot,
@@ -25,7 +25,7 @@ class DoodlePart {
     double cy,
     double r, {
     this.fill,
-    this.stroke = C.doodle,
+    this.stroke = inkStroke,
     this.width = 4,
     this.anim = DoodleAnim.none,
     this.pivot,
@@ -39,7 +39,7 @@ class DoodlePart {
     double h,
     double radius, {
     this.fill,
-    this.stroke = C.doodle,
+    this.stroke = inkStroke,
     this.width = 4,
     this.anim = DoodleAnim.none,
     this.pivot,
@@ -53,6 +53,10 @@ class DoodlePart {
   final Path Function() _build;
   late final Path path = _build();
   final Color? fill;
+  /// Platzhalter für „Strichfarbe der Doodles“ – wird erst beim Zeichnen
+  /// aufgelöst, damit hell/dunkel wechseln kann.
+  static const inkStroke = Color(0x01000000);
+
   final Color? stroke;
   final double width;
   final DoodleAnim anim;
@@ -162,11 +166,12 @@ class _DoodlePainter extends CustomPainter {
       if (p.fill != null) {
         canvas.drawPath(p.path, Paint()..color = _alpha(p.fill!, opacity));
       }
-      if (p.stroke != null) {
+      final stroke = p.stroke == DoodlePart.inkStroke ? C.doodle : p.stroke;
+      if (stroke != null) {
         canvas.drawPath(
           p.path,
           Paint()
-            ..color = _alpha(p.stroke!, opacity)
+            ..color = _alpha(stroke, opacity)
             ..style = PaintingStyle.stroke
             ..strokeWidth = p.width
             ..strokeCap = StrokeCap.round

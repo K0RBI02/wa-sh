@@ -159,12 +159,12 @@ class _Idle extends StatelessWidget {
         ),
         Container(
           height: 44,
-          decoration: const ShapeDecoration(color: C.ink, shape: StadiumBorder()),
+          decoration: ShapeDecoration(color: C.ink, shape: StadiumBorder()),
           alignment: Alignment.center,
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Text(t.start, style: font(size: 15, weight: FontWeight.w600, color: C.white)),
             const SizedBox(width: 8),
-            const Icon(Icons.add, size: 18, color: C.white),
+            Icon(Icons.add, size: 18, color: C.white),
           ]),
         ),
       ],
@@ -245,8 +245,8 @@ class _Busy extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(color: C.ink, shape: BoxShape.circle),
-            child: const Icon(Icons.arrow_forward, size: 16, color: C.white),
+            decoration: BoxDecoration(color: C.ink, shape: BoxShape.circle),
+            child: Icon(Icons.arrow_forward, size: 16, color: C.white),
           ),
         ]),
       ],
@@ -292,7 +292,7 @@ class _ChipState extends State<_Chip> with SingleTickerProviderStateMixin {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         FadeTransition(
           opacity: Tween(begin: 1.0, end: 0.25).animate(_c),
-          child: Container(width: 7, height: 7, decoration: const BoxDecoration(color: C.ink, shape: BoxShape.circle)),
+          child: Container(width: 7, height: 7, decoration: BoxDecoration(color: C.ink, shape: BoxShape.circle)),
         ),
         const SizedBox(width: 6),
         Text(widget.text, style: font(size: 12, weight: FontWeight.w600)),

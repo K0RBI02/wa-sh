@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ final messengerKey = GlobalKey<ScaffoldMessengerState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   t = S.fromSystem();
+  C.dark = PlatformDispatcher.instance.platformBrightness == Brightness.dark;
   await Notifier.instance.init();
   await HomeAssistant.load();
   final store = await WashStore.load();
@@ -141,15 +144,37 @@ class _WashAppState extends State<WashApp> with WidgetsBindingObserver {
   void didChangeLocales(List<Locale>? locales) {
     final next = S.forLocale(locales?.firstOrNull);
     if (identical(next, t)) return;
-    setState(() => t = next);
+    t = next;
+    _rebuildAll();
     Notifier.instance.refreshChannels();
     widget.onLocaleChanged?.call();
   }
 
   @override
+  void didChangePlatformBrightness() {
+    final dark = PlatformDispatcher.instance.platformBrightness == Brightness.dark;
+    if (dark == C.dark) return;
+    C.dark = dark;
+    _rebuildAll();
+  }
+
+  /// Texte und Farben werden beim Bauen gelesen – nach einem Wechsel von
+  /// Sprache oder Hell/Dunkel also den ganzen Baum neu bauen (auch
+  /// const-Widgets), ohne den Navigationsstand zu verlieren.
+  void _rebuildAll() {
+    setState(() {});
+    void mark(Element e) {
+      e.markNeedsBuild();
+      e.visitChildren(mark);
+    }
+
+    (context as Element).visitChildren(mark);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+      value: (C.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(statusBarColor: Colors.transparent),
       child: MaterialApp(
         title: 'wa:sh',
         debugShowCheckedModeBanner: false,

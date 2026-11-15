@@ -30,7 +30,7 @@ class MachineFlow extends StatelessWidget {
           Navigator.of(context).maybePop();
         }
       });
-      return const Scaffold(backgroundColor: C.bg);
+      return Scaffold(backgroundColor: C.bg);
     }
 
     final done = run.isDone(now);
@@ -169,7 +169,7 @@ class _DoneViewState extends State<_DoneView> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(color: C.white.withAlpha(140), borderRadius: BorderRadius.circular(18)),
           child: Row(children: [
-            const Icon(Icons.alarm, size: 22, color: C.ink),
+            Icon(Icons.alarm, size: 22, color: C.ink),
             const SizedBox(width: 12),
             Text(t.doneSpace, style: font(size: 14, color: C.sub)),
             Text(_since(), style: font(size: 14, weight: FontWeight.w600)),
@@ -193,7 +193,7 @@ class _DoneViewState extends State<_DoneView> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(children: [
-                  const Icon(Icons.air, size: 26, color: C.ink),
+                  Icon(Icons.air, size: 26, color: C.ink),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -201,7 +201,7 @@ class _DoneViewState extends State<_DoneView> {
                       Text(t.onToDryerSub, style: font(size: 13, color: C.sub)),
                     ]),
                   ),
-                  const Icon(Icons.arrow_forward, size: 20, color: C.ink),
+                  Icon(Icons.arrow_forward, size: 20, color: C.ink),
                 ]),
               ),
             ),

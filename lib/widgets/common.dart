@@ -161,16 +161,16 @@ class RoundIcon extends StatelessWidget {
     required this.icon,
     required this.onTap,
     required this.label,
-    this.background = C.ink,
-    this.foreground = C.white,
+    this.background,
+    this.foreground,
     this.size = 48,
   });
 
   final IconData icon;
   final VoidCallback onTap;
   final String label;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
   final double size;
 
   @override
@@ -179,7 +179,7 @@ class RoundIcon extends StatelessWidget {
       button: true,
       label: label,
       child: Material(
-        color: background,
+        color: background ?? C.ink,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -187,7 +187,7 @@ class RoundIcon extends StatelessWidget {
           child: SizedBox(
             width: size,
             height: size,
-            child: Icon(icon, size: size * 0.45, color: foreground),
+            child: Icon(icon, size: size * 0.45, color: foreground ?? C.white),
           ),
         ),
       ),
