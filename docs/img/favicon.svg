@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 24 164 164">
+<style>
+  path { stroke-linecap: round; stroke-linejoin: round; }
+  .paper { fill: #fff; stroke: #1a1a1a; }
+  .fill { fill: #1a1a1a; stroke: #1a1a1a; }
+  .line { fill: none; stroke: #1a1a1a; }
+  .cut { fill: none; stroke: #fff; }
+  @media (prefers-color-scheme: dark) {
+    .paper { fill: #1a1a1a; stroke: #eceef0; }
+    .fill { fill: #eceef0; stroke: #eceef0; }
+    .line { stroke: #eceef0; }
+    .cut { stroke: #1a1a1a; }
+  }
+</style>
+<path class="paper" d="M58 82 Q62 52 88 58 Q100 34 128 48 Q150 40 162 66 Q170 74 166 84" stroke-width="4"/><path class="line" d="M96 60 Q104 70 116 62" stroke-width="3"/><path class="line" d="M140 54 Q146 64 140 74" stroke-width="3"/><path class="paper" d="M40 96 Q40 86 50 86 L172 84 Q182 84 182 94 L182 100 L40 102 Z" stroke-width="4"/><path class="fill" d="M48 104 L174 102 L160 176 Q159 182 152 182 L70 183 Q63 183 62 177 Z" stroke-width="4"/><path class="cut" d="M57 128 L167 126 M63 154 L162 153" stroke-width="3"/><path class="cut" d="M90 108 L94 178 M132 107 L129 178" stroke-width="3"/><path class="line" d="M170 92 Q186 104 180 122 Q176 132 184 138" stroke-width="3"/>
+</svg>
