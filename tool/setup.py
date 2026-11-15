@@ -56,10 +56,12 @@ def setup_plugin():
         run(["flutter", "create", "--template=plugin", "--platforms", "android,ios",
              "-a", "java", "--org", "de.k0rbi02", "--project-name", "wash_live", str(PLUGIN)])
 
-    # Dart-API: nur unsere eine Datei, Beispiel-App und Vorlagen-Tests raus.
-    for name in ("wash_live_platform_interface.dart", "wash_live_method_channel.dart"):
-        (PLUGIN / "lib" / name).unlink(missing_ok=True)
-    for d in ("example", "test"):
+    # Dart-API: nur unsere eine Datei. Alles, was die Vorlage sonst anlegt
+    # (Platform-Interface, Pigeon, Beispiel-App, Tests), fliegt raus.
+    for f in (PLUGIN / "lib").rglob("*.dart"):
+        if f.name != "wash_live.dart":
+            f.unlink()
+    for d in ("example", "test", "pigeons"):
         shutil.rmtree(PLUGIN / d, ignore_errors=True)
     copy(TOOL / "wash_live/lib/wash_live.dart", PLUGIN / "lib/wash_live.dart", "Dart-API")
 
@@ -82,6 +84,9 @@ def setup_plugin():
     if swift is None:
         print("  ! iOS: WashLivePlugin.swift im Plugin nicht gefunden – iOS-Teil übersprungen")
     else:
+        for other in swift.parent.glob("*.swift"):
+            if other.name not in ("WashLivePlugin.swift", "WashLiveAttributes.swift"):
+                other.unlink()  # z. B. von Pigeon erzeugter Code der Vorlage
         copy(TOOL / "wash_live/ios/WashLivePlugin.swift", swift, "iOS: WashLivePlugin.swift")
         copy(TOOL / "wash_live/ios/WashLiveAttributes.swift", swift.parent / "WashLiveAttributes.swift",
              "iOS: WashLiveAttributes.swift")
