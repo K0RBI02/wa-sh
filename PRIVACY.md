@@ -1,14 +1,14 @@
-# Datenschutz – wa:sh
+# Privacy – wa:sh
 
-wa:sh sammelt keine Daten und hat keinen eigenen Server.
+wa:sh collects no data and has no server of its own.
 
-- **Auf dem Gerät gespeichert:** deine Programme (Name, Dauer) und die laufenden Timer.
-- **Benachrichtigungen** werden lokal auf dem Gerät geplant – nichts davon verlässt das Gerät.
-- **Home Assistant (optional):** Nur wenn du die App mit deinem Home Assistant koppelst, schickt sie
-  Status, Programm und Endzeit von Waschmaschine/Trockner an **deinen eigenen** Server
-  (bei Nabu Casa ggf. über dessen Cloud-Weiterleitung). Die Kopplungsdaten liegen verschlüsselt
-  im Android Keystore bzw. in der iOS Keychain.
-- Keine Werbung, keine Analyse, keine Tracker, kein Konto.
+- **Stored on the device:** your programs (name, duration) and the running timers.
+- **Notifications** are scheduled locally on the device – none of it leaves the device.
+- **Home Assistant (optional):** Only if you pair the app with your Home Assistant does it send
+  the status, program and end time of washer/dryer to **your own** server
+  (with Nabu Casa possibly via its cloud relay). The pairing data is stored encrypted
+  in the Android Keystore or the iOS Keychain and is excluded from device backups.
+- No ads, no analytics, no trackers, no account.
 
-Die Schrift Instrument Sans ist in die App eingebaut (SIL Open Font License, siehe
-`assets/fonts/OFL.txt`) – es wird nichts nachgeladen.
+The Instrument Sans font is bundled with the app (SIL Open Font License, see
+`assets/fonts/OFL.txt`) – nothing is downloaded.

@@ -1,74 +1,77 @@
 <p align="center">
-  <img src="custom_components/wash/brand/icon@2x.png" width="112" alt="wa:sh-Icon: ein Wäschekorb">
+  <img src="custom_components/wash/brand/icon@2x.png" width="112" alt="wa:sh icon: a laundry basket">
 </p>
 
 <h1 align="center">wa:sh</h1>
 
 <p align="center">
-  <strong>Nie wieder Wäsche im Keller vergessen.</strong><br>
-  Ein kleiner Wäsche-Timer für Waschmaschine und Trockner – für Android, iOS und Home Assistant.
+  <strong>Never forget your laundry in the basement again.</strong><br>
+  A small laundry timer for washer and dryer – for Android, iOS and Home Assistant.
 </p>
 
 <p align="center">
-  <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml/badge.svg" alt="App-CI"></a>
-  <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml/badge.svg" alt="Home-Assistant-CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-MIT-212529" alt="Lizenz: MIT"></a>
+  <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml/badge.svg" alt="App CI"></a>
+  <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml/badge.svg" alt="Home Assistant CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-212529" alt="License: MIT"></a>
 </p>
 
 ---
 
-In Wohnanlagen stehen Waschmaschine und Trockner meistens im Keller. Man startet
-die Wäsche, geht wieder hoch – und denkt erst Stunden später daran. Bis dahin ist
-die Maschine blockiert, die Wäsche müffelt, und die Nachbarn schauen schon komisch.
+In apartment buildings the washer and dryer usually live in the basement. You
+start a load, head back upstairs – and only remember it hours later. By then the
+machine is blocked, the laundry smells musty, and the neighbours are giving you
+looks.
 
-**wa:sh** ist der Wecker dafür: Maschine wählen, Programm tippen, fertig. Die App
-sagt Bescheid, bevor die Wäsche fertig ist, wenn sie fertig ist – und hakt nach,
-wenn sie dann immer noch unten liegt.
+**wa:sh** is the alarm clock for that: pick the machine, tap a program, done. The
+app lets you know before your laundry is done, when it's done – and nudges you
+again if it's still sitting down there.
 
-## So geht’s
+## How it works
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="docs/img/step1.svg" width="240" alt="Waschmaschine mit Pfeil auf den Startknopf"></td>
-    <td align="center" width="33%"><img src="docs/img/step2.svg" width="240" alt="Laufende Waschmaschine mit Uhr"></td>
-    <td align="center" width="33%"><img src="docs/img/step3.svg" width="240" alt="Voller Wäschekorb mit klingelnder Glocke"></td>
+    <td align="center" width="33%"><img src="docs/img/step1.svg" width="240" alt="Washing machine with an arrow pointing at the start button"></td>
+    <td align="center" width="33%"><img src="docs/img/step2.svg" width="240" alt="Running washing machine with a clock"></td>
+    <td align="center" width="33%"><img src="docs/img/step3.svg" width="240" alt="Full laundry basket with a ringing bell"></td>
   </tr>
   <tr>
-    <td valign="top"><strong>1 · Starten</strong><br>Waschmaschine oder Trockner wählen, eins deiner zwei Lieblingsprogramme antippen – oder eine eigene Zeit einstellen.</td>
-    <td valign="top"><strong>2 · Ruhig bleiben</strong><br>Countdown und Fortschrittsbalken laufen mit, auch auf dem Sperrbildschirm. 10 Minuten vor Ende kommt die erste Erinnerung.</td>
-    <td valign="top"><strong>3 · Ab in den Keller</strong><br>Fertig! Abholen, „in 5 Minuten nochmal erinnern“ – oder direkt weiter in den Trockner.</td>
+    <td valign="top"><strong>1 · Start</strong><br>Pick washer or dryer, tap one of your two favourite programs – or set a custom time.</td>
+    <td valign="top"><strong>2 · Relax</strong><br>Countdown and progress bar keep running, on the lock screen too. The first reminder arrives 10 minutes before the end.</td>
+    <td valign="top"><strong>3 · Down to the basement</strong><br>Done! Mark it collected, “remind me in 5 minutes” – or move straight on to the dryer.</td>
   </tr>
 </table>
 
-## Was wa:sh kann
+## What wa:sh does
 
-- **Waschmaschine und Trockner gleichzeitig** – beide laufen unabhängig, jede mit eigenem Timer.
-- **Immer im Blick** – auf Android eine dauerhafte Anzeige mit Restzeit (ab Android 16 als Live Update in der Statusleiste), auf dem iPhone eine Live Activity auf dem Sperrbildschirm und in der Dynamic Island.
-- **Erinnert, ohne zu nerven** – „gleich fertig“, „fertig“ und, falls nötig, ein „noch nicht abgeholt?“ mit wechselnden Sprüchen. Jede Art lässt sich pro Maschine einzeln einstellen.
-- **Schnellstart** – App-Icon lange drücken, „Bunt 40° waschen“ tippen, der Timer läuft.
-- **Eigene Programme** – zwei Favoriten pro Maschine, Name und Dauer frei wählbar.
-- **Home Assistant** – optional: Waschmaschine und Trockner erscheinen als Geräte in deinem Smart Home, mit Status, Restzeit und Ereignissen für eigene Automationen.
-- **Ruhig gestaltet** – handgezeichnete Doodles, dezente Animationen, große Schrift. „Bewegung reduzieren“ und große Systemschrift werden respektiert.
-- **Privat** – kein Konto, keine Werbung, keine Tracker. Alles bleibt auf deinem Handy (und, wenn du willst, bei deinem eigenen Home Assistant). → [Datenschutz](PRIVACY.md)
+- **Washer and dryer at the same time** – both run independently, each with its own timer.
+- **Always in view** – on Android a persistent notification with the time left (a Live Update in the status bar from Android 16), on iPhone a Live Activity on the lock screen and in the Dynamic Island.
+- **Reminds without nagging** – “almost done”, “done” and, if needed, a “not collected yet?” with rotating one-liners. Every kind can be tuned per machine.
+- **Quick start** – long-press the app icon, tap a program, the timer is running.
+- **Your own programs** – two favourites per machine, name and duration up to you.
+- **Home Assistant** – optional: washer and dryer show up as devices in your smart home, with status, time left and events for your own automations.
+- **Calm by design** – hand-drawn doodles, subtle animations, large type. “Reduce motion” and large system fonts are respected.
+- **Private** – no account, no ads, no trackers. Everything stays on your phone (and, if you like, on your own Home Assistant). → [Privacy](PRIVACY.md)
+
+> The app itself currently speaks German.
 
 ## Home Assistant
 
-Die Integration kommt gleich mit. Nach dem Koppeln stehen **Waschmaschine** und
-**Trockner** als eigene Geräte in Home Assistant – mit Status, „Fertig um“,
-Restzeit, Fortschritt und Programm. Home Assistant weiß selbst, wann die Wäsche
-fertig ist, auch wenn das Handy gerade aus ist.
+The integration ships right along. Once paired, **Washer** and **Dryer** appear
+as devices in Home Assistant – with status, “finishes at”, time left, progress
+and program. Home Assistant knows on its own when the laundry is done, even if
+the phone is switched off.
 
-1. **Installieren:** HACS → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/K0RBI02/wa-sh` (Typ *Integration*) → **wa:sh** herunterladen → Home Assistant neu starten.
-2. **Koppeln:** *Einstellungen → Geräte & Dienste → Integration hinzufügen → wa:sh*. Home Assistant zeigt einen Code – den in der App unter *Meine Programme → Home Assistant* eingeben. Fertig.
+1. **Install:** HACS → ⋮ → *Custom repositories* → `https://github.com/K0RBI02/wa-sh` (type *Integration*) → download **wa:sh** → restart Home Assistant.
+2. **Pair:** *Settings → Devices & services → Add integration → wa:sh*. Home Assistant shows a code – enter it in the app under *Meine Programme → Home Assistant*. Done.
 
-Ohne Token, ohne Zwischenserver. Beispiel-Automationen und alle Details:
+No token, no relay server. Example automations and all details:
 [docs/HOME-ASSISTANT.md](docs/HOME-ASSISTANT.md)
 
-## Installieren
+## Install
 
-wa:sh ist eine native Flutter-App für **Android** und **iOS**. Fertige APKs
-erscheinen unter [Releases](https://github.com/K0RBI02/wa-sh/releases); bis dahin
-lässt sich die App selbst bauen:
+wa:sh is a native Flutter app for **Android** and **iOS**. Ready-made APKs will
+appear under [Releases](https://github.com/K0RBI02/wa-sh/releases); until then
+you can build it yourself:
 
 ```bash
 git clone https://github.com/K0RBI02/wa-sh.git && cd wa-sh
@@ -76,14 +79,14 @@ python3 tool/setup.py
 flutter run
 ```
 
-Alles Weitere – iOS-Einrichtung, Tests, Releases, Aufbau des Codes – steht in
-[docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md).
+Everything else – iOS setup, tests, releases, code layout – is in
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-## Mitmachen
+## Contributing
 
-Ideen, Fehler, Wünsche: gern als [Issue](https://github.com/K0RBI02/wa-sh/issues).
-Was sich geändert hat, steht im [Changelog](CHANGELOG.md).
+Ideas, bugs, wishes: please open an [issue](https://github.com/K0RBI02/wa-sh/issues).
+What changed is in the [changelog](CHANGELOG.md).
 
-## Lizenz
+## License
 
-[MIT](LICENSE) · Schrift: [Instrument Sans](assets/fonts/OFL.txt) (SIL Open Font License)
+[MIT](LICENSE) · Font: [Instrument Sans](assets/fonts/OFL.txt) (SIL Open Font License)

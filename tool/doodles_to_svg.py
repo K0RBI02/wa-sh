@@ -1,8 +1,8 @@
-"""Erzeugt die Bilder fürs README (docs/img/*.svg) aus lib/widgets/doodles.dart.
+"""Generates the README images (docs/img/*.svg) from lib/widgets/doodles.dart.
 
-Liest die P.path/P.circle/P.rect/P.dot-Aufrufe der genannten Doodles und
-schreibt sie als SVG mit Pastell-Karte – inklusive der dezenten Animationen
-(GitHub zeigt SVG-Animationen auch in <img>).
+Reads the P.path/P.circle/P.rect/P.dot calls of the listed doodles and writes
+them as SVG on a pastel card – including the subtle animations (GitHub shows
+SVG animations inside <img> too).
 
     python3 tool/doodles_to_svg.py
 """
@@ -17,7 +17,7 @@ INK, WHITE = "#1A1A1A", "#FFFFFF"
 COLORS = {"C.doodle": INK, "C.white": WHITE, "C.pink": "#F7D6D2", "C.peach": "#FCE3CF", "C.green": "#EEF6DC"}
 PIVOTS = {"_bell": (195, 10)}
 
-# (Datei, Doodle, Akzentfarbe, Kartenfarbe, Drehpunkt für „spin“)
+# (file, doodle, accent colour, card colour, pivot for “spin”)
 SHOTS = [
     ("step1.svg", "washerStart", "#F7D6D2", "#F7D6D2", (112, 117)),
     ("step2.svg", "machineRunning", "#EEF6DC", "#EEF6DC", (102, 118)),
@@ -42,7 +42,7 @@ CSS = """
 def body(name: str) -> str:
     m = re.search(rf"DoodleDef {name}\(Color accent\) => DoodleDef\(_big, \[(.*?)\n    \]\);", SRC, re.S)
     if not m:
-        raise SystemExit(f"Doodle {name} nicht gefunden")
+        raise SystemExit(f"doodle {name} not found")
     return m.group(1)
 
 
@@ -54,7 +54,7 @@ def color(expr: str | None, accent: str) -> str | None:
 
 
 def parts(src: str):
-    # Ein Aufruf pro „P.xxx(...)“ – Klammern zählen, Pfade enthalten keine Klammern.
+    # One call per “P.xxx(...)” – count brackets, paths contain none.
     for m in re.finditer(r"P\.(path|circle|rect|dot)\(", src):
         depth, i = 1, m.end()
         while depth:

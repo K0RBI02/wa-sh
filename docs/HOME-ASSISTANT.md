@@ -1,67 +1,74 @@
 # wa:sh – Home Assistant
 
-wa:sh bringt eine eigene Home-Assistant-Integration mit (`custom_components/wash`).
-Die App meldet direkt an Home Assistant – ohne Zwischenserver, ohne Token.
+wa:sh ships its own Home Assistant integration (`custom_components/wash`).
+The app reports straight to Home Assistant – no relay server, no token.
 
-## Installieren
+## Install
 
-**Über HACS:** HACS → ⋮ → *Benutzerdefinierte Repositories* →
-`https://github.com/K0RBI02/wa-sh`, Typ *Integration* → **wa:sh** herunterladen →
-Home Assistant neu starten.
+**Via HACS:** HACS → ⋮ → *Custom repositories* →
+`https://github.com/K0RBI02/wa-sh`, type *Integration* → download **wa:sh** →
+restart Home Assistant.
 
-**Von Hand:** Ordner `custom_components/wash` nach `/config/custom_components/wash`
-kopieren, Home Assistant neu starten.
+**Manually:** copy the folder `custom_components/wash` to `/config/custom_components/wash`,
+restart Home Assistant.
 
-## Koppeln
+## Pair
 
-1. Home Assistant → *Einstellungen → Geräte & Dienste → Integration hinzufügen* → **wa:sh** → Namen vergeben (z. B. „Waschküche“).
-2. HA zeigt den **Kopplungscode** groß an (z. B. `K7Q-2M9`, 10 Min. gültig) und wartet.
-   In der App: *Menü → Meine Programme → Home Assistant* → Adresse und Code eintragen → **Koppeln**.
-3. Sobald das Handy gekoppelt ist, geht der Dialog in HA von selbst weiter – fertig.
+1. Home Assistant → *Settings → Devices & services → Add integration* → **wa:sh** → choose a name (e.g. “Laundry room”).
+2. Home Assistant shows the **pairing code** in large type (e.g. `K7Q-2M9`, valid for 10 minutes) and waits.
+   In the app: *Menu → Meine Programme → Home Assistant* → enter address and code → **Koppeln**.
+3. As soon as the phone is paired, the dialog in Home Assistant continues on its own – done.
 
-Ein weiteres Handy koppelt man über **Konfigurieren** am Eintrag. Mit Nabu Casa
-bekommt die App zusätzlich eine Cloud-Adresse und meldet auch, wenn sie das
-Heimnetz nicht erreicht. Unter *⋮ → Diagnose herunterladen* gibt es den aktuellen
-Stand (ohne Kopplungsdaten) für Fehlerberichte.
+Pair another phone via **Configure** on the entry. With Nabu Casa the app also gets
+a cloud address and keeps reporting when it can't reach your home network.
+*⋮ → Download diagnostics* gives you the current state (without pairing data) for
+bug reports.
 
-## Was in HA ankommt
+## What shows up in Home Assistant
 
-Zwei Geräte – **Waschmaschine** und **Trockner** – mit je:
+Two devices – **Washer** (*Waschmaschine*) and **Dryer** (*Trockner*) – each with:
 
-| Entität | Inhalt |
+| Entity | Content |
 |---|---|
-| Status | Frei · Läuft · Fertig |
-| Läuft | Binärsensor, an solange die Maschine läuft |
-| Fertig um | Zeitstempel |
-| Restzeit | Minuten |
-| Fortschritt | % |
-| Programm | z. B. „Bunt 40°“ |
+| Status | Idle · Running · Finished |
+| Running | Binary sensor, on while the machine runs |
+| Finishes at | Timestamp |
+| Time remaining | Minutes |
+| Progress | % |
+| Program | e.g. “Bunt 40°” |
 
-Die Integration rechnet das Ende selbst aus: Sie schaltet pünktlich auf „Fertig“,
-auch wenn das Handy aus ist, und behält den Stand über HA-Neustarts.
+The integration works out the end time itself: it switches to “Finished” on time,
+even if the phone is off, and keeps its state across Home Assistant restarts.
 
-Für Automationen gibt es außerdem die Ereignisse `wash_started`, `wash_finished`
-und `wash_collected` (Daten: `machine`, `name`, `program`, `end`).
+For automations there are also the events `wash_started`, `wash_finished`
+and `wash_collected` (data: `machine`, `name`, `program`, `end`).
 
-Beispiel – Durchsage und Licht, wenn die Wäsche fertig ist:
+Example – announcement and a light flash when the laundry is done:
 
 ```yaml
 automation:
-  - alias: "Wäsche fertig – Durchsage"
+  - alias: "Laundry done – announcement"
     triggers:
       - trigger: event
         event_type: wash_finished
     actions:
       - action: tts.speak
         target:
-          entity_id: tts.google_translate_de_de
+          entity_id: tts.google_translate_en_com
         data:
-          media_player_entity_id: media_player.wohnzimmer
-          message: "{{ trigger.event.data.name }} ist fertig – ab in den Keller."
+          media_player_entity_id: media_player.living_room
+          message: "The {{ trigger.event.data.machine == 'wash' and 'washer' or 'dryer' }} is done – down to the basement."
       - action: light.turn_on
         target:
-          entity_id: light.flur
+          entity_id: light.hallway
         data:
           flash: short
 ```
 
+## How it works
+
+- The app sends a small JSON message to a webhook of the integration whenever
+  something changes (start, “already done”, collected). Pairing hands the app that
+  webhook – the code is single-use, valid for 10 minutes, and failed attempts are rate-limited.
+- Home Assistant stores the last state and schedules “finished” itself.
+- Tests run against a real Home Assistant: `pip install pytest-homeassistant-custom-component && python -m pytest`.

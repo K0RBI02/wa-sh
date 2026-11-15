@@ -1,74 +1,79 @@
 # Changelog
 
-## 0.4.0 – unveröffentlicht
+## 0.4.0 – unreleased
 
 ### App
-- Neues App-Icon: der Wäschekorb (auch als angepasstes Android-Icon und
-  einfarbiges „Themed Icon“).
-- Benachrichtigungen nach Maschine gruppiert, jede Kategorie einzeln
-  einstellbar: Läuft gerade · Gleich fertig · Fertig · Nachhaken.
-- „Benachrichtigungen“ in „Meine Programme“ öffnet direkt die
-  System-Einstellungen der App.
-- iOS: Mitteilungen pro Maschine gestapelt; „Fertig“ als zeitkritisch
-  (dringt durch einen Fokus, wenn die Fähigkeit aktiviert ist).
-- Android: Sicherung schließt die verschlüsselten HA-Kopplungsdaten aus
-  (verhindert Fehler nach dem Wiederherstellen auf einem neuen Handy);
-  Zurück-Geste mit Vorschau.
+- New app icon: the laundry basket (also as Android adaptive icon and
+  monochrome “themed icon”).
+- Notifications grouped by machine, each category adjustable on its own:
+  Running · Almost done · Done · Nudges.
+- “Benachrichtigungen” in “Meine Programme” opens the app's system
+  notification settings directly.
+- iOS: notifications stacked per machine; “done” marked time-sensitive
+  (breaks through a Focus once the capability is enabled).
+- Android: backups exclude the encrypted Home Assistant pairing data
+  (prevents errors after restoring onto a new phone); predictive back gesture.
 
 ### Home Assistant
-- Wäschekorb als Icon; „Läuft“ mit Waschmaschinen- bzw. Trockner-Symbol.
+- Laundry basket icon; “Running” shows a washer or dryer symbol.
+
+### Repository
+- README rewritten around the app, technical docs moved to `docs/`, all in English.
 
 ## 0.3.1
 
 ### Home Assistant
-- Einrichtung in drei Schritten: Name → Kopplungscode auf eigenem Screen →
-  „Gekoppelt“. Der Dialog wartet aufs Handy und geht von selbst weiter.
-- Abgelaufener Code: neuer Code mit einem Klick; geschlossener Dialog macht
-  den Code sofort ungültig.
-- Eigenes Icon in HA und HACS.
-- Diagnose-Download (ohne Kopplungsdaten).
-- War eine Maschine fertig, während HA aus war, wird „fertig“ nach dem Start
-  nachgeholt.
+- Setup in three steps: name → pairing code on its own screen → “paired”.
+  The dialog waits for the phone and continues on its own.
+- Expired code: new code with one click; closing the dialog invalidates the
+  code immediately.
+- Own icon in Home Assistant and HACS.
+- Diagnostics download (without pairing data).
+- If a machine finished while Home Assistant was down, “done” is caught up
+  after the restart.
 
 ### App
-- Layoutfehler bei „Verbindung testen / Trennen“ behoben.
+- Fixed layout overflow at “Verbindung testen / Trennen”.
 
 ## 0.3.0
 
-### Neu
-- Eigene Home-Assistant-Integration „wa:sh“ (HACS): Geräte Waschmaschine und
-  Trockner mit Status, „Läuft“, Fertig um, Restzeit, Fortschritt, Programm;
-  Ereignisse `wash_started` / `wash_finished` / `wash_collected`.
-- Kopplung über einen Code aus Home Assistant statt Long-Lived-Token.
-- HA schaltet selbst pünktlich auf „Fertig“ und behält den Stand über Neustarts.
-- Mit Nabu Casa: Ausweich-Adresse über die Cloud.
-- Home-Assistant-Bereich in den Einstellungen einklappbar.
+### Added
+- Own Home Assistant integration “wa:sh” (HACS): Washer and Dryer devices with
+  status, running, finishes at, time left, progress and program; events
+  `wash_started` / `wash_finished` / `wash_collected`.
+- Pairing with a code shown by Home Assistant instead of a long-lived token.
+- Home Assistant switches to “done” on time by itself and keeps its state across restarts.
+- With Nabu Casa: fallback address via the cloud.
+- Collapsible Home Assistant section in the settings.
 
-### Geändert
-- Die alte REST-Anbindung (`sensor.wash_*` per Token) entfällt; ein gespeicherter
-  Token wird beim Update gelöscht. Einmal neu koppeln.
+### Changed
+- The old REST connection (`sensor.wash_*` via token) is gone; a stored token is
+  deleted on update. Pair once again.
 
 ## 0.2.0 – 2026-11-15
 
-### Neu
-- „Läuft“-Anzeige pro Maschine mit Restzeit, Fortschrittsbalken und den Buttons „Schon fertig“ / „Zur Übersicht“
-  - Android: eigener Vordergrund-Dienst, läuft auch bei geschlossener App weiter; ab Android 16 QPR1 als Live Update mit Chip in der Statusleiste
-  - iOS: Live Activity auf dem Sperrbildschirm und in der Dynamic Island
-- Schnellstart über das App-Icon (lange drücken) – startet ein gespeichertes Programm sofort
-- „Noch nicht abgeholt?“ – Erinnerung 15 Minuten nach „fertig“ mit wechselnden Sprüchen
-- Home-Assistant-Anbindung: Status, Programm und „fertig um“ als Sensoren
-- Vibration bei Auswahl, Start und Abholen
-- Eigenes App-Icon und Statusleisten-Symbol, Schrift fest eingebaut
+### Added
+- “Running” display per machine with time left, progress bar and the buttons
+  “Schon fertig” / “Zur Übersicht”
+  - Android: own foreground service that keeps running with the app closed; from
+    Android 16 QPR1 as a Live Update with a status bar chip
+  - iOS: Live Activity on the lock screen and in the Dynamic Island
+- Quick start from the app icon (long-press) – starts a saved program right away
+- “Not collected yet?” – reminder 15 minutes after “done” with rotating one-liners
+- Home Assistant connection: status, program and “finishes at” as sensors
+- Haptics on selection, start and collection
+- Own app icon and status bar icon, bundled font
 
-### Geändert
-- Schritt 2: „Zur Übersicht“ und „Schon fertig“ statt „Timer stoppen“
-- Schritt-Anzeige einheitlich 4 px
-- HA-Token wird verschlüsselt gespeichert (Android Keystore / iOS Keychain)
-- Schriftgröße folgt der Systemeinstellung (bis 130 %)
+### Changed
+- Step 2: “Zur Übersicht” and “Schon fertig” instead of “stop timer”
+- Step indicator consistently 4 px
+- Home Assistant token stored encrypted (Android Keystore / iOS Keychain)
+- Text size follows the system setting (up to 130 %)
 - flutter_local_notifications 22, timezone 0.11
 
 ## 0.1.0 – 2026-11-14
 
-- Erste Version: Start mit Kachel pro Maschine, 3-Schritte-Ablauf (Starten → Läuft → Abholen),
-  Waschmaschine und Trockner parallel, zwei gespeicherte Programme pro Maschine plus eigene Zeit,
-  Erinnerung 10 Minuten vor Ende und bei „fertig“, animierte Doodles
+- First version: home screen with a tile per machine, 3-step flow
+  (start → running → collect), washer and dryer in parallel, two saved programs
+  per machine plus custom time, reminder 10 minutes before the end and when done,
+  animated doodles

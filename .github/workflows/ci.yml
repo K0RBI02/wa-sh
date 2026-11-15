@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
-    # Änderungen nur an der HA-Integration oder an Texten brauchen keinen App-Build.
+    # Changes only to the HA integration or to docs don't need an app build.
     paths-ignore:
       - "custom_components/**"
       - "tests/**"
@@ -36,7 +36,7 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      # android/ entsteht erst durch setup.py – daher eigener Gradle-Cache.
+      # android/ is only created by setup.py – hence a separate Gradle cache.
       - uses: actions/cache@v4
         with:
           path: |
@@ -50,16 +50,16 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Projekt einrichten (Plugin, Plattformen, Icons)
+      - name: Set up project (plugin, platforms, icons)
         run: python3 tool/setup.py
 
-      - name: Analyse
+      - name: Analyze
         run: flutter analyze --no-fatal-infos
 
       - name: Tests
         run: flutter test
 
-      - name: Signatur-Schlüssel (falls als Secret hinterlegt)
+      - name: Signing key (if stored as a secret)
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -67,7 +67,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "Kein Schlüssel hinterlegt – Release wird mit dem Debug-Schlüssel signiert."
+            echo "No signing key stored – release is signed with the debug key."
             exit 0
           fi
           echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
@@ -78,10 +78,10 @@ jobs:
           storeFile=upload-keystore.jks
           PROPS
 
-      - name: APK bauen
+      - name: Build APK
         run: flutter build apk --release
 
-      - name: APK umbenennen
+      - name: Rename APK
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/+.*//')
           mv build/app/outputs/flutter-apk/app-release.apk "build/wa-sh-$VERSION.apk"
@@ -92,7 +92,7 @@ jobs:
           name: wa-sh-apk
           path: ${{ env.APK }}
 
-      - name: Release (bei Tag v*)
+      - name: Release (on tag v*)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:

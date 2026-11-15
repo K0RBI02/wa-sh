@@ -1,0 +1,16 @@
+In apartment buildings the washer and dryer usually live in the basement – and then you forget them. wa:sh sets the timer, reminds you in time and tells you when to head down.
+
+<b>As simple as this</b>
+1. Start – pick the machine, a favourite program or a custom time
+2. Relax – time left and progress always in view, a reminder 10 minutes before
+3. Down to the basement – a notification as soon as it's done, and a nudge in case you doze off
+
+<b>Also</b>
+• Washer and dryer run independently – even at the same time
+• Persistent “running” display with countdown and progress bar, a Live Update on Android 16
+• Notifications per machine, every kind adjustable on its own
+• Quick start right from the app icon
+• Optional: Home Assistant integration
+• No ads, no account, no trackers
+
+The app is currently available in German.
