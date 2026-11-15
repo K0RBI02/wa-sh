@@ -53,16 +53,12 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/icon/foreground.png"
   adaptive_icon_monochrome: "assets/icon/monochrome.png"
 
-# Startbildschirm – hell und dunkel gleich aufgebaut: Wäschekorb auf der
-# Grundfläche, die Pastellkachel bleibt in beiden Modi hell.
+# Startbildschirm: wie gehabt das App-Icon auf weißem Grund – im
+# Dunkelmodus dasselbe auf dunklem Grund.
 flutter_native_splash:
-  color: "#F5F6F7"
+  color: "#FFFFFF"
   color_dark: "#121416"
-  image: assets/icon/splash.png
   android_12:
-    image: assets/icon/splash12.png
-    icon_background_color: "#EEF6DC"
-    icon_background_color_dark: "#EEF6DC"
-    color: "#F5F6F7"
+    color: "#FFFFFF"
     color_dark: "#121416"
   web: false
