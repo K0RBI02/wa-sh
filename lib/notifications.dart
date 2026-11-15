@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -25,17 +27,88 @@ class Notifier {
   static const actionFinish = 'finish';
   static const actionOverview = 'overview';
 
-  static const _channel = AndroidNotificationDetails(
-    'wash_reminders',
-    'Wäsche-Erinnerungen',
-    channelDescription: 'Sagt dir Bescheid, bevor und wenn deine Wäsche fertig ist.',
-    importance: Importance.high,
-    priority: Priority.high,
-  );
-  static const _details = NotificationDetails(
-    android: _channel,
-    iOS: DarwinNotificationDetails(),
-  );
+  /// Benachrichtigungs-Kategorien. In den Android-Einstellungen erscheinen sie
+  /// nach Maschine gruppiert, jede einzeln abschalt- und einstellbar:
+  ///
+  /// Waschmaschine / Trockner
+  ///   · Läuft gerade       (still, dauerhaft – kommt aus dem Plugin wash_live)
+  ///   · Gleich fertig      (10 Min. vorher)
+  ///   · Fertig             (wichtig, mit Ton)
+  ///   · Nachhaken          („nochmal erinnern“, „noch nicht abgeholt?“)
+  static const _kinds = <_Kind, (String, String, Importance)>{
+    _Kind.soon: ('Gleich fertig', '10 Minuten vor Ende – Zeit, sich auf den Weg zu machen.', Importance.defaultImportance),
+    _Kind.done: ('Fertig', 'Wenn die Maschine fertig ist.', Importance.high),
+    _Kind.nudge: ('Nachhaken', '„Nochmal erinnern“ und „Noch nicht abgeholt?“.', Importance.defaultImportance),
+  };
+
+  static String _channelId(Machine m, _Kind k) => '${m.name}_${k.name}';
+
+  /// Alte Kanäle aus Version 0.1/0.2 – werden beim Start entfernt.
+  static const _legacyChannels = ['wash_reminders', 'wash_live'];
+
+  Future<void> _createChannels() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) return;
+    for (final m in Machine.values) {
+      await android.createNotificationChannelGroup(
+        AndroidNotificationChannelGroup(
+          m.name,
+          m.label,
+          description: m == Machine.wash ? 'Alles rund um die Waschmaschine.' : 'Alles rund um den Trockner.',
+        ),
+      );
+      // „Läuft gerade“ legt das Plugin an – hier nur vorab, damit die Liste vollständig ist.
+      await android.createNotificationChannel(AndroidNotificationChannel(
+        '${m.name}_running',
+        'Läuft gerade',
+        description: 'Dauerhafte Anzeige mit Restzeit und Fortschritt.',
+        groupId: m.name,
+        importance: Importance.low,
+        playSound: false,
+        enableVibration: false,
+        showBadge: false,
+      ));
+      for (final e in _kinds.entries) {
+        final (name, desc, importance) = e.value;
+        await android.createNotificationChannel(AndroidNotificationChannel(
+          _channelId(m, e.key),
+          name,
+          description: desc,
+          groupId: m.name,
+          importance: importance,
+        ));
+      }
+    }
+    for (final id in _legacyChannels) {
+      try {
+        await android.deleteNotificationChannel(channelId: id);
+      } catch (_) {}
+    }
+  }
+
+  NotificationDetails _details(Machine m, _Kind k) {
+    final (name, desc, importance) = _kinds[k]!;
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        _channelId(m, k),
+        name,
+        channelDescription: desc,
+        importance: importance,
+        priority: k == _Kind.done ? Priority.high : Priority.defaultPriority,
+        category: AndroidNotificationCategory.reminder,
+        groupKey: 'wash.${m.name}',
+        color: const Color(0xFF212529),
+        visibility: NotificationVisibility.public,
+      ),
+      iOS: DarwinNotificationDetails(
+        // In der Mitteilungszentrale nach Maschine gestapelt.
+        threadIdentifier: m.name,
+        // „Fertig“ darf durch einen Fokus durch (braucht die Fähigkeit
+        // „Time Sensitive Notifications“ im Xcode-Projekt, sonst normal).
+        interruptionLevel: k == _Kind.done ? InterruptionLevel.timeSensitive : InterruptionLevel.active,
+      ),
+    );
+  }
 
   Future<void> init() async {
     const settings = InitializationSettings(
@@ -56,6 +129,7 @@ class Notifier {
       _pendingLaunchPayload = launch!.notificationResponse?.payload;
       _pendingLaunchAction = launch.notificationResponse?.actionId;
     }
+    await _createChannels();
     _ready = true;
   }
 
@@ -104,6 +178,7 @@ class Notifier {
         'Gleich fertig',
         '${run.machine.label}: noch ${reminderLead.inMinutes} Minuten – mach dich langsam auf in den Keller.',
         run.machine,
+        _Kind.soon,
       );
     }
     if (run.end.isAfter(now)) {
@@ -113,6 +188,7 @@ class Notifier {
         run.machine == Machine.wash ? 'Wäsche ist fertig' : 'Trockner ist fertig',
         'Ab in den Keller – bevor sich der Nachbar deine Lieblingssocken ausleiht.',
         run.machine,
+        _Kind.done,
       );
     }
     // Nachhaken, falls 15 Minuten nach „fertig“ noch nichts abgeholt wurde.
@@ -124,6 +200,7 @@ class Notifier {
         'Noch nicht abgeholt?',
         '${run.machine.label}: ${_nudges[run.end.minute % _nudges.length]}',
         run.machine,
+        _Kind.nudge,
       );
     }
   }
@@ -145,6 +222,7 @@ class Notifier {
       'Noch da unten?',
       '${machine.label}: Deine Wäsche wartet noch auf dich.',
       machine,
+      _Kind.nudge,
     );
   }
 
@@ -155,7 +233,7 @@ class Notifier {
     }
   }
 
-  Future<void> _at(int id, DateTime when, String title, String body, Machine machine) async {
+  Future<void> _at(int id, DateTime when, String title, String body, Machine machine, _Kind kind) async {
     // Einmalige Erinnerungen brauchen nur den absoluten Zeitpunkt – in UTC
     // geplant, ist die Zeitzone des Geräts egal.
     final t = tz.TZDateTime.from(when.toUtc(), tz.UTC);
@@ -165,7 +243,7 @@ class Notifier {
         title: title,
         body: body,
         scheduledDate: t,
-        notificationDetails: _details,
+        notificationDetails: _details(machine, kind),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: machine.name,
       );
@@ -177,10 +255,12 @@ class Notifier {
         title: title,
         body: body,
         scheduledDate: t,
-        notificationDetails: _details,
+        notificationDetails: _details(machine, kind),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         payload: machine.name,
       );
     }
   }
 }
+
+enum _Kind { soon, done, nudge }

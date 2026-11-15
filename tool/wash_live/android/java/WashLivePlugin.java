@@ -60,6 +60,15 @@ public class WashLivePlugin implements FlutterPlugin, MethodChannel.MethodCallHa
                 result.success(launch);
                 launch = null;
                 break;
+            case "openNotificationSettings": {
+                // Direkt in die Benachrichtigungs-Einstellungen der App (Kategorien je Maschine).
+                Intent i = new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.getPackageName())
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(i);
+                result.success(null);
+                break;
+            }
             default:
                 result.notImplemented();
         }

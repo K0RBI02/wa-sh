@@ -1,6 +1,24 @@
 # Changelog
 
-## 0.3.1 – unveröffentlicht
+## 0.4.0 – unveröffentlicht
+
+### App
+- Neues App-Icon: der Wäschekorb (auch als angepasstes Android-Icon und
+  einfarbiges „Themed Icon“).
+- Benachrichtigungen nach Maschine gruppiert, jede Kategorie einzeln
+  einstellbar: Läuft gerade · Gleich fertig · Fertig · Nachhaken.
+- „Benachrichtigungen“ in „Meine Programme“ öffnet direkt die
+  System-Einstellungen der App.
+- iOS: Mitteilungen pro Maschine gestapelt; „Fertig“ als zeitkritisch
+  (dringt durch einen Fokus, wenn die Fähigkeit aktiviert ist).
+- Android: Sicherung schließt die verschlüsselten HA-Kopplungsdaten aus
+  (verhindert Fehler nach dem Wiederherstellen auf einem neuen Handy);
+  Zurück-Geste mit Vorschau.
+
+### Home Assistant
+- Wäschekorb als Icon; „Läuft“ mit Waschmaschinen- bzw. Trockner-Symbol.
+
+## 0.3.1
 
 ### Home Assistant
 - Einrichtung in drei Schritten: Name → Kopplungscode auf eigenem Screen →

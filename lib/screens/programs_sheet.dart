@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:wash_live/wash_live.dart';
+
 import '../ha.dart';
 import '../models.dart';
 import '../store.dart';
@@ -88,6 +90,8 @@ class _ProgramsSheet extends StatelessWidget {
             Text('Die Programme erscheinen beim Starten direkt zur Auswahl. Für alles andere gibt’s „Eigene Zeit“.',
                 style: font(size: 14, height: 1.4, color: C.muted)),
             const SizedBox(height: 28),
+            const _NotificationsRow(),
+            const SizedBox(height: 12),
             const _HomeAssistantCard(),
             const SizedBox(height: 20),
             PillButton(label: 'Speichern', expand: true, onTap: () => Navigator.of(context).pop()),
@@ -356,6 +360,45 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Sprung in die System-Einstellungen: dort stehen die Kategorien je Maschine
+/// (Läuft gerade · Gleich fertig · Fertig · Nachhaken).
+class _NotificationsRow extends StatelessWidget {
+  const _NotificationsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: C.bg,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: Semantics(
+        button: true,
+        label: 'Benachrichtigungen in den Systemeinstellungen öffnen',
+        child: InkWell(
+          onTap: WashLive.openNotificationSettings,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+            child: ExcludeSemantics(
+              child: Row(children: [
+                const Icon(Icons.notifications_none_rounded, size: 22, color: C.ink),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Benachrichtigungen', style: font(size: 18, weight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Text('Pro Maschine einzeln einstellen', style: font(size: 13, color: C.muted)),
+                  ]),
+                ),
+                const Icon(Icons.open_in_new_rounded, size: 20, color: C.ink),
+              ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

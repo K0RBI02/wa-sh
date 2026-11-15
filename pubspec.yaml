@@ -1,7 +1,7 @@
 name: wash
 description: "wa:sh – nie wieder Wäsche im Keller vergessen."
 publish_to: "none"
-version: 0.3.1+4
+version: 0.4.0+5
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -46,6 +46,6 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: "assets/icon/icon.png"
-  adaptive_icon_background: "#F7D6D2"
+  adaptive_icon_background: "#EEF6DC"
   adaptive_icon_foreground: "assets/icon/foreground.png"
   adaptive_icon_monochrome: "assets/icon/monochrome.png"

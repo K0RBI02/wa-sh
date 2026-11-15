@@ -66,6 +66,16 @@ class WashLive {
     }
   }
 
+  /// Öffnet die Benachrichtigungs-Einstellungen der App im System.
+  static Future<void> openNotificationSettings() async {
+    if (!_supported) return;
+    try {
+      await _channel.invokeMethod<void>('openNotificationSettings');
+    } on PlatformException catch (e) {
+      debugPrint('Einstellungen nicht geöffnet: $e');
+    }
+  }
+
   static void _dispatch(Object? data) {
     if (data is! Map) return;
     final machine = data['machine'];

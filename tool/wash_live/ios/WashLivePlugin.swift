@@ -33,6 +33,12 @@ public class WashLivePlugin: NSObject, FlutterPlugin {
         case "launchAction":
             result(launch)
             launch = nil
+        case "openNotificationSettings":
+            // iOS 16+: direkt zu den Mitteilungen der App, sonst zu ihren Einstellungen.
+            var target = UIApplication.openSettingsURLString
+            if #available(iOS 16.0, *) { target = UIApplication.openNotificationSettingsURLString }
+            if let url = URL(string: target) { UIApplication.shared.open(url) }
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }

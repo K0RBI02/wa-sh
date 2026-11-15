@@ -2,6 +2,7 @@ package de.k0rbi02.wash_live;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -34,7 +35,10 @@ public class LiveRunService extends Service {
     static final String EXTRA_MACHINE = "wash_machine";
     static final String EXTRA_ACTION = "wash_action";
 
-    private static final String CHANNEL = "wash_live";
+    /** Ein Kanal pro Maschine („wash_running“ / „dry_running“), gruppiert nach Maschine. */
+    static String channelFor(String machine) {
+        return ("dry".equals(machine) ? "dry" : "wash") + "_running";
+    }
     private static final String PREFS = "wash_live";
     private static final long TICK_MS = 15_000L;
     private static final String[] MACHINES = {"wash", "dry"};
@@ -133,7 +137,7 @@ public class LiveRunService extends Service {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        ensureChannel();
+        ensureChannels();
     }
 
     @Override
@@ -203,24 +207,33 @@ public class LiveRunService extends Service {
         foregroundId = null;
     }
 
-    private void ensureChannel() {
+    private void ensureChannels() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
-        if (nm(this).getNotificationChannel(CHANNEL) != null) return;
-        NotificationChannel ch = new NotificationChannel(CHANNEL, "Läuft gerade", NotificationManager.IMPORTANCE_LOW);
-        ch.setDescription("Zeigt dauerhaft, wie lange Waschmaschine und Trockner noch brauchen.");
-        ch.setShowBadge(false);
-        nm(this).createNotificationChannel(ch);
+        NotificationManager nm = nm(this);
+        nm.deleteNotificationChannel("wash_live"); // alter gemeinsamer Kanal (0.1/0.2)
+        for (String m : MACHINES) {
+            String label = "wash".equals(m) ? "Waschmaschine" : "Trockner";
+            if (nm.getNotificationChannelGroup(m) == null) {
+                nm.createNotificationChannelGroup(new NotificationChannelGroup(m, label));
+            }
+            if (nm.getNotificationChannel(channelFor(m)) != null) continue;
+            NotificationChannel ch = new NotificationChannel(channelFor(m), "Läuft gerade", NotificationManager.IMPORTANCE_LOW);
+            ch.setDescription("Dauerhafte Anzeige mit Restzeit und Fortschritt.");
+            ch.setGroup(m);
+            ch.setShowBadge(false);
+            nm.createNotificationChannel(ch);
+        }
     }
 
     @SuppressWarnings("deprecation")
-    private Notification.Builder builder() {
+    private Notification.Builder builder(String machine) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                ? new Notification.Builder(this, CHANNEL)
+                ? new Notification.Builder(this, channelFor(machine))
                 : new Notification.Builder(this);
     }
 
     private Notification placeholder() {
-        return builder()
+        return builder("wash")
                 .setSmallIcon(R.drawable.ic_stat_wash)
                 .setContentTitle("wa:sh")
                 .setOngoing(true)
@@ -233,7 +246,7 @@ public class LiveRunService extends Service {
         long minsLeft = Math.max(1L, (r.end - now + 59_999L) / 60_000L);
         String clock = new SimpleDateFormat("HH:mm", Locale.GERMANY).format(new Date(r.end));
 
-        Notification.Builder b = builder()
+        Notification.Builder b = builder(r.machine)
                 .setSmallIcon(R.drawable.ic_stat_wash)
                 .setContentTitle(r.title)
                 .setContentText("Fertig um " + clock + " · " + r.program)

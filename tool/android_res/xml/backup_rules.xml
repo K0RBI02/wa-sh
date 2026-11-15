@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 und älter: Programme und Läufe sichern, die verschlüsselten
+     HA-Kopplungsdaten nicht (der Schlüssel dazu liegt im Keystore und wird
+     nicht mitgesichert – nach einer Wiederherstellung wären sie unlesbar). -->
+<full-backup-content>
+    <include domain="sharedpref" path="."/>
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml"/>
+</full-backup-content>

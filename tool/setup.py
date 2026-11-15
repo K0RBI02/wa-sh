@@ -122,6 +122,12 @@ def patch_manifest(text):
     if "usesCleartextTraffic" not in text:
         # Home Assistant im Heimnetz läuft meist über http://
         text = text.replace("<application", '<application\n        android:usesCleartextTraffic="true"', 1)
+    if "dataExtractionRules" not in text:
+        # Sicherung: Programme ja, verschlüsselte HA-Kopplung nein.
+        text = text.replace("<application", '<application\n        android:dataExtractionRules="@xml/data_extraction_rules"\n        android:fullBackupContent="@xml/backup_rules"', 1)
+    if "enableOnBackInvokedCallback" not in text:
+        # Vorschau-Animation beim Zurückwischen (Android 14+)
+        text = text.replace("<application", '<application\n        android:enableOnBackInvokedCallback="true"', 1)
     if "ScheduledNotificationReceiver" not in text:
         text = text.replace("    </application>", RECEIVERS + "    </application>", 1)
     text = re.sub(r'android:label="[^"]*"', f'android:label="{APP_NAME}"', text, count=1)
@@ -245,6 +251,10 @@ def setup_app():
         patch(kts, patch_signing_kts, "Release-Signatur (build.gradle.kts)")
     else:
         patch(ROOT / "android/app/build.gradle", patch_gradle_groovy, "Desugaring (build.gradle)")
+
+    for f in (TOOL / "android_res").rglob("*.xml"):
+        rel = f.relative_to(TOOL / "android_res")
+        copy(f, ROOT / "android/app/src/main/res" / rel, f"Ressource: {rel}")
 
     print("iOS:")
     patch(ROOT / "ios/Runner/Info.plist", patch_plist, "Info.plist (Name, Live Activities, URL-Schema)")

@@ -81,6 +81,24 @@ Hinweis zu neueren Flutter-Vorlagen mit `SceneDelegate`: Kommen die Buttons der 
 Activity („Schon fertig“, „Zur Übersicht“) in der App nicht an, muss der Szenen-Delegate
 die `wash://`-Links weiterreichen – Tipp auf die Live Activity selbst öffnet die App in jedem Fall.
 
+### Benachrichtigungen
+
+Android sortiert die Benachrichtigungen nach Maschine, jede Kategorie lässt sich
+einzeln abschalten oder anpassen (Ton, Vibration, „Bitte nicht stören“):
+
+| Waschmaschine / Trockner | Wann | Standard |
+|---|---|---|
+| Läuft gerade | dauerhaft, mit Restzeit und Fortschritt | still |
+| Gleich fertig | 10 Min. vor Ende | normal |
+| Fertig | bei Ende | wichtig |
+| Nachhaken | „nochmal erinnern“, „noch nicht abgeholt?“ | normal |
+
+Direkt hin geht es über *Menü → Meine Programme → Benachrichtigungen*.
+
+Auf iOS stapeln sich die Mitteilungen pro Maschine. Damit „Fertig“ auch durch
+einen Fokus kommt: in Xcode beim Target *Runner* unter *Signing & Capabilities*
+**Time Sensitive Notifications** hinzufügen.
+
 ### Android-Hinweis
 
 Ist `JAVA_TOOL_OPTIONS` gesetzt (z. B. für Skalierung), stolpert Gradles JDK-Erkennung
