@@ -1,6 +1,7 @@
 # wa:sh
 
 [![CI](https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml/badge.svg)](https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml)
+[![Home Assistant](https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml/badge.svg)](https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml)
 
 Nie wieder Wäsche im Keller vergessen. In Wohnanlagen stehen Waschmaschine und
 Trockner meist im Keller – wa:sh stellt den Timer, erinnert dich rechtzeitig
