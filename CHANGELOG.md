@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 – unreleased
+## 0.4.0 – 2026-11-15
 
 ### App
 - **English and German**: the app follows the phone's language and switches
