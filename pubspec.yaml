@@ -1,0 +1,51 @@
+name: wash
+description: "wa:sh – nie wieder Wäsche im Keller vergessen."
+publish_to: "none"
+version: 0.2.0+2
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^22.3.3
+  timezone: ^0.11.0
+  shared_preferences: ^2.5.0
+  flutter_secure_storage: ^11.2.0
+  path_drawing: ^1.0.1
+  quick_actions: ^1.1.0
+  # Eigenes Plugin für die „läuft“-Anzeige (Android-Dienst / iOS Live Activity).
+  # Wird von tool/setup.py unter packages/wash_live erzeugt.
+  wash_live:
+    path: packages/wash_live
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: InstrumentSans
+      fonts:
+        - asset: assets/fonts/InstrumentSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/InstrumentSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/InstrumentSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/InstrumentSans-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#F7D6D2"
+  adaptive_icon_foreground: "assets/icon/foreground.png"
+  adaptive_icon_monochrome: "assets/icon/monochrome.png"

@@ -1,0 +1,24 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock.bak
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+# Von tool/setup.py erzeugt – Quellen liegen unter tool/
+/android/
+/ios/
+/packages/
+/test/widget_test.dart
+
+# Signatur – niemals einchecken
+*.jks
+*.keystore
+key.properties

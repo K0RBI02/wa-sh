@@ -1,0 +1,13 @@
+In Wohnanlagen stehen Waschmaschine und Trockner meist im Keller – und dann vergisst man sie. wa:sh stellt den Timer, erinnert dich rechtzeitig und sagt Bescheid, wenn du runter musst.
+
+<b>So einfach geht’s</b>
+1. Starten – Maschine wählen, Lieblingsprogramm oder eigene Zeit
+2. Ruhig bleiben – Restzeit und Fortschritt immer im Blick, Erinnerung 10 Minuten vorher
+3. Ab in den Keller – Meldung, sobald alles fertig ist, und ein Nachhaken, falls du’s verpennst
+
+<b>Außerdem</b>
+• Waschmaschine und Trockner laufen unabhängig – auch gleichzeitig
+• Dauerhafte „läuft“-Anzeige mit Countdown und Balken, auf Android 16 als Live Update
+• Schnellstart direkt übers App-Icon
+• Optional: Anbindung an Home Assistant
+• Keine Werbung, kein Konto, keine Tracker

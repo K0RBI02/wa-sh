@@ -1,0 +1,5 @@
+- Läuft-Anzeige mit Countdown und Balken, Live Update ab Android 16 QPR1
+- Schnellstart über das App-Icon
+- Erinnerung, wenn die Wäsche nach 15 Min noch nicht abgeholt ist
+- Home-Assistant-Anbindung
+- Vibration, App-Icon, eingebaute Schrift

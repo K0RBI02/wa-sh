@@ -1,0 +1,26 @@
+# Changelog
+
+## 0.2.0 – 2026-11-15
+
+### Neu
+- „Läuft“-Anzeige pro Maschine mit Restzeit, Fortschrittsbalken und den Buttons „Schon fertig“ / „Zur Übersicht“
+  - Android: eigener Vordergrund-Dienst, läuft auch bei geschlossener App weiter; ab Android 16 QPR1 als Live Update mit Chip in der Statusleiste
+  - iOS: Live Activity auf dem Sperrbildschirm und in der Dynamic Island
+- Schnellstart über das App-Icon (lange drücken) – startet ein gespeichertes Programm sofort
+- „Noch nicht abgeholt?“ – Erinnerung 15 Minuten nach „fertig“ mit wechselnden Sprüchen
+- Home-Assistant-Anbindung: Status, Programm und „fertig um“ als Sensoren
+- Vibration bei Auswahl, Start und Abholen
+- Eigenes App-Icon und Statusleisten-Symbol, Schrift fest eingebaut
+
+### Geändert
+- Schritt 2: „Zur Übersicht“ und „Schon fertig“ statt „Timer stoppen“
+- Schritt-Anzeige einheitlich 4 px
+- HA-Token wird verschlüsselt gespeichert (Android Keystore / iOS Keychain)
+- Schriftgröße folgt der Systemeinstellung (bis 130 %)
+- flutter_local_notifications 22, timezone 0.11
+
+## 0.1.0 – 2026-11-14
+
+- Erste Version: Start mit Kachel pro Maschine, 3-Schritte-Ablauf (Starten → Läuft → Abholen),
+  Waschmaschine und Trockner parallel, zwei gespeicherte Programme pro Maschine plus eigene Zeit,
+  Erinnerung 10 Minuten vor Ende und bei „fertig“, animierte Doodles
