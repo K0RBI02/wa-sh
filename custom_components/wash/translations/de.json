@@ -2,26 +2,45 @@
   "config": {
     "step": {
       "user": {
-        "title": "wa:sh einrichten",
-        "description": "Verbindet die wa:sh-App mit Home Assistant. Danach bekommst du einen Kopplungscode für die App.",
+        "title": "wa:sh einrichten – 1/3",
+        "description": "Verbindet die wa:sh-App mit Home Assistant. Als Nächstes bekommst du einen Kopplungscode für die App.",
         "data": {
           "name": "Name"
         },
         "data_description": {
           "name": "Wird als Raum und Titel verwendet, z. B. „Waschküche“."
         }
+      },
+      "expired": {
+        "title": "Code abgelaufen",
+        "description": "Es hat sich innerhalb von 10 Minuten kein Handy gekoppelt. **Absenden** erzeugt einen neuen Code."
+      },
+      "pair": {
+        "title": "wa:sh einrichten – 2/3"
       }
     },
+    "progress": {
+      "pair": "Gib diesen Code in der wa:sh-App ein:\n\n# {code}\n\n**App:** Menü → Meine Programme → Home Assistant → Adresse eintragen, Code eingeben, **Koppeln**.\n\nDieses Fenster wartet und geht automatisch weiter, sobald das Handy gekoppelt ist. Der Code gilt {minutes} Minuten."
+    },
     "create_entry": {
-      "default": "**Kopplungscode: `{code}`** (gilt {minutes} Minuten)\n\nIn der wa:sh-App: Menü → Meine Programme → Home Assistant → Adresse dieses Home Assistant eintragen, Code eingeben, **Koppeln**.\n\nNeuen Code gibt es jederzeit über **Konfigurieren**."
+      "default": "## ✓ Gekoppelt – 3/3\n\nDas Handy meldet ab jetzt an **{name}**. Waschmaschine und Trockner erscheinen als eigene Geräte.\n\nEin weiteres Handy koppelst du über **Konfigurieren** am Eintrag."
     }
   },
   "options": {
     "step": {
-      "init": {
-        "title": "Neues Handy koppeln",
-        "description": "**Kopplungscode: `{code}`** (gilt {minutes} Minuten)\n\nIn der wa:sh-App: Menü → Meine Programme → Home Assistant → Adresse eintragen, Code eingeben, **Koppeln**."
+      "expired": {
+        "title": "Code abgelaufen",
+        "description": "Es hat sich innerhalb von 10 Minuten kein Handy gekoppelt. **Absenden** erzeugt einen neuen Code."
+      },
+      "pair": {
+        "title": "Weiteres Handy koppeln"
       }
+    },
+    "progress": {
+      "pair": "Gib diesen Code in der wa:sh-App ein:\n\n# {code}\n\n**App:** Menü → Meine Programme → Home Assistant → Adresse eintragen, Code eingeben, **Koppeln**.\n\nDieses Fenster wartet und geht automatisch weiter, sobald das Handy gekoppelt ist. Der Code gilt {minutes} Minuten."
+    },
+    "abort": {
+      "paired": "## ✓ Gekoppelt\n\nDas Handy meldet ab jetzt an **{name}**."
     }
   },
   "entity": {

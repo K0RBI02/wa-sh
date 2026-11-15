@@ -101,13 +101,15 @@ kopieren, Home Assistant neu starten.
 
 ### Koppeln
 
-1. Home Assistant → *Einstellungen → Geräte & Dienste → Integration hinzufügen* → **wa:sh**.
-2. Namen vergeben (z. B. „Waschküche“) – HA zeigt einen **Kopplungscode** wie `K7Q-2M9` (10 Min. gültig).
-3. In der App: *Menü → Meine Programme → Home Assistant* → Adresse und Code eintragen → **Koppeln**.
+1. Home Assistant → *Einstellungen → Geräte & Dienste → Integration hinzufügen* → **wa:sh** → Namen vergeben (z. B. „Waschküche“).
+2. HA zeigt den **Kopplungscode** groß an (z. B. `K7Q-2M9`, 10 Min. gültig) und wartet.
+   In der App: *Menü → Meine Programme → Home Assistant* → Adresse und Code eintragen → **Koppeln**.
+3. Sobald das Handy gekoppelt ist, geht der Dialog in HA von selbst weiter – fertig.
 
-Ein weiteres Handy koppelt man über **Konfigurieren** am Eintrag – das erzeugt
-einen neuen Code. Mit Nabu Casa bekommt die App zusätzlich eine Cloud-Adresse und
-meldet auch, wenn sie das Heimnetz nicht erreicht.
+Ein weiteres Handy koppelt man über **Konfigurieren** am Eintrag. Mit Nabu Casa
+bekommt die App zusätzlich eine Cloud-Adresse und meldet auch, wenn sie das
+Heimnetz nicht erreicht. Unter *⋮ → Diagnose herunterladen* gibt es den aktuellen
+Stand (ohne Kopplungsdaten) für Fehlerberichte.
 
 ### Was in HA ankommt
 

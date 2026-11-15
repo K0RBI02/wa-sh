@@ -2,26 +2,45 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up wa:sh",
-        "description": "Connects the wa:sh app to Home Assistant. You'll get a pairing code for the app next.",
+        "title": "Set up wa:sh – 1/3",
+        "description": "Connects the wa:sh app to Home Assistant. Next you'll get a pairing code for the app.",
         "data": {
           "name": "Name"
         },
         "data_description": {
           "name": "Used as area and title, e.g. “Laundry room”."
         }
+      },
+      "expired": {
+        "title": "Code expired",
+        "description": "No phone paired within 10 minutes. **Submit** creates a new code."
+      },
+      "pair": {
+        "title": "Set up wa:sh – 2/3"
       }
     },
+    "progress": {
+      "pair": "Enter this code in the wa:sh app:\n\n# {code}\n\n**App:** Menu → My programs → Home Assistant → enter the address and the code, tap **Pair**.\n\nThis window waits and continues automatically once the phone is paired. The code is valid for {minutes} minutes."
+    },
     "create_entry": {
-      "default": "**Pairing code: `{code}`** (valid for {minutes} minutes)\n\nIn the wa:sh app: Menu → My programs → Home Assistant → enter the address of this Home Assistant and the code, then tap **Pair**.\n\nYou can get a new code any time via **Configure**."
+      "default": "## ✓ Paired – 3/3\n\nThe phone now reports to **{name}**. Washer and dryer show up as devices of their own.\n\nPair another phone via **Configure** on the entry."
     }
   },
   "options": {
     "step": {
-      "init": {
-        "title": "Pair a new phone",
-        "description": "**Pairing code: `{code}`** (valid for {minutes} minutes)\n\nIn the wa:sh app: Menu → My programs → Home Assistant → enter the address and the code, then tap **Pair**."
+      "expired": {
+        "title": "Code expired",
+        "description": "No phone paired within 10 minutes. **Submit** creates a new code."
+      },
+      "pair": {
+        "title": "Pair another phone"
       }
+    },
+    "progress": {
+      "pair": "Enter this code in the wa:sh app:\n\n# {code}\n\n**App:** Menu → My programs → Home Assistant → enter the address and the code, tap **Pair**.\n\nThis window waits and continues automatically once the phone is paired. The code is valid for {minutes} minutes."
+    },
+    "abort": {
+      "paired": "## ✓ Paired\n\nThe phone now reports to **{name}**."
     }
   },
   "entity": {

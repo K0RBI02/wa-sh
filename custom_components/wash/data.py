@@ -123,7 +123,14 @@ class WashData:
             if isinstance(raw.get(m), dict):
                 self.machines[m] = MachineState.from_dict(raw[m])
         self.last_seen = _parse(raw.get("last_seen"))
+        now = dt_util.utcnow()
         for m in MACHINES:
+            s = self.machines[m]
+            if s.state == STATE_RUNNING and s.end is not None and s.end <= now:
+                # Während HA aus war fertig geworden – nachholen.
+                s.state = STATE_FINISHED
+                self._fire(EVENT_FINISHED, m)
+                self._save()
             self._schedule(m)
         self._tick = async_track_time_interval(self.hass, self._on_tick, PROGRESS_INTERVAL)
 

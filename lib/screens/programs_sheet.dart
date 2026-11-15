@@ -268,9 +268,9 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
   /// Gekoppelt: Testen + Trennen.
   List<Widget> _pairedActions() => [
         const SizedBox(height: 4),
-        Row(children: [
+        // Wrap statt Row: bei großer Schrift rutscht „Trennen“ in die nächste Zeile.
+        Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
           _busy ? _spinner : PillButton(label: 'Verbindung testen', height: 46, onTap: _test),
-          const Spacer(),
           TextButton(
             onPressed: _busy ? null : _unpair,
             style: TextButton.styleFrom(foregroundColor: C.ink, minimumSize: const Size(44, 44)),

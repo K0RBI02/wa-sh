@@ -1,6 +1,21 @@
 # Changelog
 
-## 0.3.0 – unveröffentlicht
+## 0.3.1 – unveröffentlicht
+
+### Home Assistant
+- Einrichtung in drei Schritten: Name → Kopplungscode auf eigenem Screen →
+  „Gekoppelt“. Der Dialog wartet aufs Handy und geht von selbst weiter.
+- Abgelaufener Code: neuer Code mit einem Klick; geschlossener Dialog macht
+  den Code sofort ungültig.
+- Eigenes Icon in HA und HACS.
+- Diagnose-Download (ohne Kopplungsdaten).
+- War eine Maschine fertig, während HA aus war, wird „fertig“ nach dem Start
+  nachgeholt.
+
+### App
+- Layoutfehler bei „Verbindung testen / Trennen“ behoben.
+
+## 0.3.0
 
 ### Neu
 - Eigene Home-Assistant-Integration „wa:sh“ (HACS): Geräte Waschmaschine und

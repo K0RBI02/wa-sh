@@ -225,7 +225,8 @@ class HomeAssistant extends ChangeNotifier {
       final req = await client.postUrl(Uri.parse(url)).timeout(const Duration(seconds: 10));
       req.headers.contentType = ContentType.json;
       req.add(utf8.encode(jsonEncode(body)));
-      final res = await req.close().timeout(const Duration(seconds: 10));
+      // Großzügig: Beim Koppeln wartet HA, bis der Eintrag angelegt ist.
+      final res = await req.close().timeout(const Duration(seconds: 20));
       final text = await res.transform(utf8.decoder).join();
       Object? parsed;
       try {
