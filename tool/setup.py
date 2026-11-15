@@ -305,6 +305,8 @@ def main():
     run(["flutter", "pub", "get"])
     print("App-Icon:")
     run(["dart", "run", "flutter_launcher_icons"])
+    print("Startbildschirm:")
+    run(["dart", "run", "flutter_native_splash:create"])
     print("\nFertig. Starten mit:  flutter run")
     print("iOS: Widget-Erweiterung einmalig in Xcode anlegen – siehe README.")
 

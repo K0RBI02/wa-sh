@@ -148,8 +148,10 @@ class _ProgramCardState extends State<_ProgramCard> {
                 counterText: '',
                 isDense: true,
                 contentPadding: const EdgeInsets.only(top: 6, bottom: 6),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.line, width: 1.5)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: C.ink, width: 1.5)),
+                // Ohne Linie – die Karte reicht als Rahmen.
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
               ),
             ),
           ),
@@ -159,7 +161,8 @@ class _ProgramCardState extends State<_ProgramCard> {
             label: t.programMinus(n),
             onTap: () => _save(p.copyWith(minutes: (p.minutes - 5).clamp(10, 300))),
             background: C.machine(widget.machine),
-            foreground: C.ink,
+            // Auf Pastell immer dunkel – auch im Dunkelmodus.
+            foreground: Pal.day.ink,
             size: 44,
           ),
           SizedBox(
