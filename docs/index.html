@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wa:sh – never forget your laundry in the basement again</title>
+<meta name="description" content="A small laundry timer for washer and dryer – for Android, iOS and Home Assistant. Create an NFC sticker that starts the timer right at the machine.">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #212529; --bg: #f5f6f7; --card: #ffffff; --sub: #3b4046; --muted: #5c6168; --line: #d6d9dc;
+    --pink: #f7d6d2; --green: #eef6dc; --peach: #fce3cf; --good: #3e8e41; --bad: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e9ecef; --bg: #111315; --card: #1d2024; --sub: #c4c9ce; --muted: #9aa0a6; --line: #3a3f45;
+      --pink: #4d3734; --green: #39422c; --peach: #4d3b2d; --good: #6cc070; --bad: #ef7a6d;
+    }
+    .doodle { filter: invert(1) hue-rotate(180deg); border-radius: 22px; }
+    .step { background: var(--card) !important; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.5 "Instrument Sans", system-ui, sans-serif; }
+  a { color: inherit; text-underline-offset: 3px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; letter-spacing: -0.03em; text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 9px; }
+  .lang { display: inline-flex; background: var(--card); border-radius: 999px; padding: 4px; }
+  .lang button { border: 0; background: transparent; color: var(--ink); font: 600 14px "Instrument Sans", sans-serif; padding: 8px 14px; min-height: 36px; border-radius: 999px; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+  .hero { padding: 48px 0 32px; }
+  h1 { font-size: clamp(44px, 8vw, 76px); line-height: 0.95; letter-spacing: -0.04em; font-weight: 600; margin: 0 0 20px; max-width: 12ch; }
+  .lead { font-size: 20px; color: var(--sub); max-width: 52ch; margin: 0 0 28px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 26px; border-radius: 999px; background: var(--ink); color: var(--card); font-weight: 600; text-decoration: none; border: 0; font-size: 16px; font-family: inherit; cursor: pointer; }
+  .pill.ghost { background: var(--card); color: var(--ink); }
+  .card .pill.ghost { background: var(--bg); }
+  .pill:disabled { opacity: 0.45; cursor: not-allowed; }
+  h2 { font-size: clamp(30px, 5vw, 42px); letter-spacing: -0.03em; line-height: 1.05; font-weight: 600; margin: 72px 0 24px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .step { border-radius: 28px; padding: 18px 18px 22px; }
+  .step img { width: 100%; height: auto; display: block; margin-bottom: 8px; }
+  .step:nth-child(1) { background: var(--pink); } .step:nth-child(2) { background: var(--green); } .step:nth-child(3) { background: var(--peach); }
+  .step strong { display: block; font-size: 19px; margin-bottom: 4px; }
+  .step p { margin: 0; color: var(--sub); font-size: 16px; }
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0; list-style: none; }
+  .features li { background: var(--card); border-radius: 20px; padding: 18px 20px; color: var(--sub); }
+  .features b { display: block; color: var(--ink); margin-bottom: 2px; }
+  .card { background: var(--card); border-radius: 32px; padding: 28px; }
+  .nfc { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  fieldset { border: 0; padding: 0; margin: 0 0 18px; }
+  legend { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+  .seg label { flex: 1 1 0; min-width: 0; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg span { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 48px; padding: 0 14px; border-radius: 999px; background: var(--bg); font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s, color .2s; }
+  .seg input:checked + span { background: var(--ink); color: var(--card); }
+  .seg input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .field input { border: 0; border-bottom: 1.5px solid var(--line); background: transparent; color: var(--ink); font: 500 17px "Instrument Sans", sans-serif; padding: 6px 0 8px; }
+  .field input:focus { outline: none; border-color: var(--ink); }
+  .custom[hidden] { display: none; }
+  .row { display: flex; gap: 16px; }
+  .row .field { flex: 1; }
+  .link { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; background: var(--bg); border-radius: 16px; padding: 14px 16px; word-break: break-all; margin: 0 0 14px; }
+  .status { min-height: 24px; font-size: 15px; margin: 12px 0 0; display: flex; align-items: center; gap: 8px; }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: transparent; flex: none; }
+  .status.ok::before { background: var(--good); } .status.err::before { background: var(--bad); }
+  .note { font-size: 15px; color: var(--sub); }
+  .note h3 { font-size: 17px; color: var(--ink); margin: 0 0 6px; }
+  .note ol { padding-left: 20px; margin: 0 0 18px; }
+  .note p { margin: 0 0 18px; }
+  footer { margin: 80px 0 40px; color: var(--muted); font-size: 15px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  @media (max-width: 760px) {
+    .steps, .features, .nfc { grid-template-columns: 1fr; }
+    .hero { padding-top: 24px; }
+    .seg span { padding: 0 10px; font-size: 14px; white-space: nowrap; }
+    .seg label { flex: 1 1 auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#"><img src="img/icon@2x.png" alt="">wa:sh</a>
+    <div class="lang" role="group" aria-label="Language / Sprache">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Never forget your laundry again.</h1>
+      <p class="lead" data-i18n="heroLead">In apartment buildings the washer and dryer live in the basement – and then you forget them. wa:sh sets the timer, reminds you in time and tells you when to head down.</p>
+      <div class="pills">
+        <a class="pill" href="https://github.com/K0RBI02/wa-sh/releases" data-i18n="download">Download for Android</a>
+        <a class="pill ghost" href="#nfc" data-i18n="makeSticker">Make an NFC sticker</a>
+        <a class="pill ghost" href="https://github.com/K0RBI02/wa-sh">GitHub</a>
+      </div>
+    </section>
+
+    <h2 data-i18n="howTitle">Three steps.</h2>
+    <div class="steps">
+      <div class="step"><img class="doodle" src="img/step1.svg" alt="" width="300" height="260"><strong data-i18n="s1">1 · Start</strong><p data-i18n="s1t">Pick washer or dryer, tap a favourite program – or set a custom time.</p></div>
+      <div class="step"><img class="doodle" src="img/step2.svg" alt="" width="300" height="260"><strong data-i18n="s2">2 · Relax</strong><p data-i18n="s2t">Countdown and progress keep running, on the lock screen too. A reminder 10 minutes before the end.</p></div>
+      <div class="step"><img class="doodle" src="img/step3.svg" alt="" width="300" height="260"><strong data-i18n="s3">3 · Down to the basement</strong><p data-i18n="s3t">Done! Collect it, “remind me in 5 minutes” – or straight on to the dryer.</p></div>
+    </div>
+
+    <h2 data-i18n="featTitle">What it does.</h2>
+    <ul class="features">
+      <li><b data-i18n="f1">Washer and dryer at once</b><span data-i18n="f1t">Both run independently, each with its own timer.</span></li>
+      <li><b data-i18n="f2">Always in view</b><span data-i18n="f2t">Live Update on Android 16, Live Activity on iPhone.</span></li>
+      <li><b data-i18n="f3">Reminds without nagging</b><span data-i18n="f3t">Almost done, done, and a nudge if it’s still down there.</span></li>
+      <li><b data-i18n="f4">Home Assistant</b><span data-i18n="f4t">Washer and dryer as devices – start, collect, automate.</span></li>
+      <li><b data-i18n="f5">Light and dark</b><span data-i18n="f5t">Follows your phone, in English and German.</span></li>
+      <li><b data-i18n="f6">Private</b><span data-i18n="f6t">No account, no ads, no trackers. Open source.</span></li>
+    </ul>
+
+    <h2 id="nfc" data-i18n="nfcTitle">Start right at the machine.</h2>
+    <div class="card nfc">
+      <form id="nfc-form" autocomplete="off">
+        <fieldset>
+          <legend data-i18n="machine">Machine</legend>
+          <div class="seg">
+            <label><input type="radio" name="machine" value="wash" checked><span data-i18n="washer">Washer</span></label>
+            <label><input type="radio" name="machine" value="dry"><span data-i18n="dryer">Dryer</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend data-i18n="program">Program</legend>
+          <div class="seg">
+            <label><input type="radio" name="program" value="1" checked><span data-i18n="p1">Program 1</span></label>
+            <label><input type="radio" name="program" value="2"><span data-i18n="p2">Program 2</span></label>
+            <label><input type="radio" name="program" value="custom"><span data-i18n="pc">Custom</span></label>
+          </div>
+        </fieldset>
+        <div class="custom row" hidden>
+          <label class="field"><span data-i18n="minutes">Minutes</span><input type="number" name="minutes" min="1" max="600" value="90" inputmode="numeric"></label>
+          <label class="field"><span data-i18n="name">Name (optional)</span><input type="text" name="name" maxlength="18" data-i18n-placeholder="namePh" placeholder="e.g. Quick 30°"></label>
+        </div>
+        <p class="link" id="link" aria-live="polite"></p>
+        <div class="pills">
+          <button class="pill" type="button" id="write" data-i18n="write">Write to sticker</button>
+          <button class="pill ghost" type="button" id="copy" data-i18n="copy">Copy link</button>
+        </div>
+        <p class="status" id="status" role="status"></p>
+      </form>
+      <div class="note">
+        <h3 data-i18n="howAndroid">Android</h3>
+        <ol>
+          <li data-i18n="a1">Open this page in Chrome on your phone.</li>
+          <li data-i18n="a2">Tap “Write to sticker” and hold the sticker to the back of the phone.</li>
+          <li data-i18n="a3">Stick it on the machine. Tap the phone on it – the timer runs.</li>
+        </ol>
+        <p data-i18n="noWebNfc">No Web NFC (e.g. Firefox)? Copy the link and write it as a URL record with any NFC app.</p>
+        <h3 data-i18n="howIos">iPhone</h3>
+        <p data-i18n="ios">iOS only opens web links from stickers. Use the Shortcuts app instead: Automation → NFC → scan the sticker → action “Open URLs” with the link above.</p>
+        <p data-i18n="programHint">“Program 1/2” are the two favourites you set in the app.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>wa:sh · MIT</span>
+    <a href="https://github.com/K0RBI02/wa-sh">GitHub</a>
+    <a href="https://github.com/K0RBI02/wa-sh/blob/main/docs/HOME-ASSISTANT.md">Home Assistant</a>
+    <a href="https://github.com/K0RBI02/wa-sh/blob/main/PRIVACY.md" data-i18n="privacy">Privacy</a>
+  </footer>
+</div>
+
+<script>
+const DE = {
+  heroTitle: 'Nie wieder Wäsche vergessen.',
+  heroLead: 'In Wohnanlagen stehen Waschmaschine und Trockner im Keller – und dann vergisst man sie. wa:sh stellt den Timer, erinnert dich rechtzeitig und sagt Bescheid, wenn du runter musst.',
+  download: 'Für Android laden', makeSticker: 'NFC-Sticker erstellen',
+  howTitle: 'Drei Schritte.',
+  s1: '1 · Starten', s1t: 'Waschmaschine oder Trockner wählen, Lieblingsprogramm antippen – oder eigene Zeit einstellen.',
+  s2: '2 · Ruhig bleiben', s2t: 'Countdown und Fortschritt laufen mit, auch auf dem Sperrbildschirm. Erinnerung 10 Minuten vor Ende.',
+  s3: '3 · Ab in den Keller', s3t: 'Fertig! Abholen, „in 5 Minuten nochmal erinnern“ – oder direkt weiter in den Trockner.',
+  featTitle: 'Was es kann.',
+  f1: 'Waschmaschine und Trockner gleichzeitig', f1t: 'Beide laufen unabhängig, jede mit eigenem Timer.',
+  f2: 'Immer im Blick', f2t: 'Live Update auf Android 16, Live Activity auf dem iPhone.',
+  f3: 'Erinnert, ohne zu nerven', f3t: 'Gleich fertig, fertig – und ein Nachhaken, falls sie noch unten liegt.',
+  f4: 'Home Assistant', f4t: 'Waschmaschine und Trockner als Geräte – starten, abholen, automatisieren.',
+  f5: 'Hell und dunkel', f5t: 'Folgt deinem Handy, auf Deutsch und Englisch.',
+  f6: 'Privat', f6t: 'Kein Konto, keine Werbung, keine Tracker. Open Source.',
+  nfcTitle: 'Direkt an der Maschine starten.',
+  machine: 'Maschine', washer: 'Waschmaschine', dryer: 'Trockner',
+  program: 'Programm', p1: 'Programm 1', p2: 'Programm 2', pc: 'Eigene Zeit',
+  minutes: 'Minuten', name: 'Name (optional)', namePh: 'z. B. Kurz 30°',
+  write: 'Auf Sticker schreiben', copy: 'Link kopieren',
+  howAndroid: 'Android',
+  a1: 'Diese Seite in Chrome auf dem Handy öffnen.',
+  a2: '„Auf Sticker schreiben“ tippen und den Sticker an die Rückseite halten.',
+  a3: 'Auf die Maschine kleben. Handy dranhalten – der Timer läuft.',
+  noWebNfc: 'Kein Web NFC (z. B. Firefox)? Link kopieren und mit einer beliebigen NFC-App als URL-Eintrag schreiben.',
+  howIos: 'iPhone',
+  ios: 'iOS öffnet von Stickern nur Web-Links. Stattdessen die Kurzbefehle-App nutzen: Automation → NFC → Sticker scannen → Aktion „URLs öffnen“ mit dem Link oben.',
+  programHint: '„Programm 1/2“ sind die zwei Favoriten, die du in der App eingestellt hast.',
+  privacy: 'Datenschutz',
+  holdSticker: 'Sticker jetzt an die Rückseite halten …', written: 'Geschrieben – ab auf die Maschine damit.',
+  copied: 'Link kopiert.', noNfc: 'Dieser Browser kann keine Sticker beschreiben – Link kopieren und eine NFC-App nutzen.',
+  failed: 'Hat nicht geklappt: ', denied: 'NFC ist aus oder wurde nicht erlaubt.'
+};
+const EN = {
+  holdSticker: 'Hold the sticker to the back of your phone now …', written: 'Written – stick it on the machine.',
+  copied: 'Link copied.', noNfc: 'This browser can’t write stickers – copy the link and use an NFC app.',
+  failed: 'That didn’t work: ', denied: 'NFC is off or wasn’t allowed.'
+};
+
+const nodes = [...document.querySelectorAll('[data-i18n]')];
+const original = new Map(nodes.map(n => [n, n.textContent]));
+const phNodes = [...document.querySelectorAll('[data-i18n-placeholder]')];
+const originalPh = new Map(phNodes.map(n => [n, n.placeholder]));
+let lang = 'en';
+
+function tr(key) { return (lang === 'de' ? DE : EN)[key] ?? EN[key] ?? key; }
+
+function setLang(next) {
+  lang = next;
+  document.documentElement.lang = next;
+  for (const n of nodes) n.textContent = next === 'de' ? (DE[n.dataset.i18n] ?? original.get(n)) : original.get(n);
+  for (const n of phNodes) n.placeholder = next === 'de' ? (DE[n.dataset.i18nPlaceholder] ?? originalPh.get(n)) : originalPh.get(n);
+  for (const b of document.querySelectorAll('[data-set-lang]')) b.setAttribute('aria-pressed', String(b.dataset.setLang === next));
+  try { localStorage.setItem('wash.lang', next); } catch (e) {}
+}
+
+document.querySelectorAll('[data-set-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.setLang)));
+let saved = null;
+try { saved = localStorage.getItem('wash.lang'); } catch (e) {}
+setLang(saved || ((navigator.language || 'en').toLowerCase().startsWith('de') ? 'de' : 'en'));
+
+// ── NFC sticker ──────────────────────────────────────────────
+const form = document.getElementById('nfc-form');
+const linkEl = document.getElementById('link');
+const statusEl = document.getElementById('status');
+const customRow = form.querySelector('.custom');
+
+function link() {
+  // Bewusst %20 statt „+“ für Leerzeichen: iOS dekodiert „+“ nicht.
+  const d = new FormData(form);
+  const q = [['machine', d.get('machine')]];
+  if (d.get('program') === 'custom') {
+    q.push(['minutes', String(Math.max(1, Math.min(600, parseInt(d.get('minutes'), 10) || 90)))]);
+    const name = String(d.get('name') || '').trim();
+    if (name) q.push(['name', name]);
+  } else {
+    q.push(['program', d.get('program')]);
+  }
+  return 'wash://start?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+}
+
+function update() {
+  customRow.hidden = new FormData(form).get('program') !== 'custom';
+  linkEl.textContent = link();
+}
+
+function say(text, kind) {
+  statusEl.textContent = text;
+  statusEl.className = 'status' + (kind ? ' ' + kind : '');
+}
+
+form.addEventListener('input', update);
+form.addEventListener('change', update);
+update();
+
+document.getElementById('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(link());
+    say(tr('copied'), 'ok');
+  } catch (e) {
+    const r = document.createRange(); r.selectNodeContents(linkEl);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+});
+
+document.getElementById('write').addEventListener('click', async () => {
+  if (!('NDEFReader' in window)) { say(tr('noNfc'), 'err'); return; }
+  try {
+    say(tr('holdSticker'));
+    await new NDEFReader().write({ records: [{ recordType: 'url', data: link() }] });
+    say(tr('written'), 'ok');
+  } catch (e) {
+    say(e && e.name === 'NotAllowedError' ? tr('denied') : tr('failed') + (e && e.message ? e.message : e), 'err');
+  }
+});
+</script>
+</body>
+</html>

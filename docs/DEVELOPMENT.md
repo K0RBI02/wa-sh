@@ -61,6 +61,17 @@ Newer Flutter templates use a `SceneDelegate`. If the Live Activity buttons
 (“Already done”, “Overview”) don't reach the app, the scene delegate has to
 forward the `wash://` links – tapping the Live Activity itself always opens the app.
 
+## Links and NFC
+
+`wash://start?machine=wash&program=1` (`program` 1 or 2) or
+`wash://start?machine=dry&minutes=90&name=Quick%2030°` starts a timer right away;
+if the machine is already running the app just opens it. Android handles the link
+from browsers, other apps and NFC tags (NDEF URI record); iOS via the URL scheme,
+e.g. from a Shortcuts automation. Encode spaces as `%20`, not `+`.
+
+The website in `docs/index.html` (GitHub Pages, *Settings → Pages → main /docs*)
+writes such links to NFC stickers via Web NFC (Chrome on Android).
+
 ## Notifications
 
 Android groups notifications by machine; every category can be switched off or

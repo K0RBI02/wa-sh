@@ -5,6 +5,8 @@
 ### App
 - Dark mode: follows the system, doodles invert (light lines on dark surfaces).
 - Status bar icon is now the laundry basket.
+- Start a timer from a link or an NFC sticker at the machine (`wash://start?…`);
+  the new website creates such stickers.
 
 ## 0.4.0 – 2026-11-15
 

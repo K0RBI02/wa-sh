@@ -47,9 +47,10 @@ again if it's still sitting down there.
 - **Always in view** – on Android a persistent notification with the time left (a Live Update in the status bar from Android 16), on iPhone a Live Activity on the lock screen and in the Dynamic Island.
 - **Reminds without nagging** – “almost done”, “done” and, if needed, a “not collected yet?” with rotating one-liners. Every kind can be tuned per machine.
 - **Quick start** – long-press the app icon, tap a program, the timer is running.
+- **NFC sticker at the machine** – tap your phone on the sticker in the basement and the timer starts. Create one on the [website](https://k0rbi02.github.io/wa-sh/#nfc).
 - **Your own programs** – two favourites per machine, name and duration up to you.
 - **Home Assistant** – optional: washer and dryer show up as devices in your smart home, with status, time left and events for your own automations.
-- **Calm by design** – hand-drawn doodles, subtle animations, large type. “Reduce motion” and large system fonts are respected.
+- **Calm by design** – hand-drawn doodles, subtle animations, large type, light and dark. “Reduce motion” and large system fonts are respected.
 - **Private** – no account, no ads, no trackers. Everything stays on your phone (and, if you like, on your own Home Assistant). → [Privacy](PRIVACY.md)
 
 The app speaks **English and German** and follows your phone's language (or the language you pick for wa:sh in the system settings).
