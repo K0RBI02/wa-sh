@@ -136,6 +136,19 @@ git tag v0.4.0 && git push --tags
 
 CI builds the APK and attaches it to a GitHub release; HACS shows the tag as the version.
 
+### F-Droid
+
+F-Droid builds the app from source and signs it itself. The recipe is in
+[`docs/fdroid/de.k0rbi02.wash.yml`](fdroid/de.k0rbi02.wash.yml); store texts, icon and
+feature graphic come from `fastlane/metadata/android/` automatically.
+
+1. Tag a release (`v0.5.0`) – the recipe builds from tags.
+2. Fork [fdroiddata](https://gitlab.com/fdroid/fdroiddata) on GitLab, copy the recipe to
+   `metadata/de.k0rbi02.wash.yml`, check the Flutter version in `srclibs`.
+3. Test locally if you like: `fdroid readmeta && fdroid build -v -l de.k0rbi02.wash`.
+4. Open a merge request (“New app: wa:sh”). The F-Droid team reviews it; once merged,
+   new tags are picked up automatically (`UpdateCheckMode: Tags`).
+
 Store listings for F-Droid / Play live in `fastlane/metadata/android/` (`en-US`, `de-DE`),
 privacy notes in [`PRIVACY.md`](../PRIVACY.md), all changes in [`CHANGELOG.md`](../CHANGELOG.md).
 

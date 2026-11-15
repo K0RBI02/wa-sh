@@ -1,0 +1,42 @@
+# Build recipe for F-Droid (fdroiddata: metadata/de.k0rbi02.wash.yml).
+# Texts, icon and feature graphic come from fastlane/metadata/android in this repo.
+Categories:
+  - Time
+License: MIT
+AuthorName: Korbi
+SourceCode: https://github.com/K0RBI02/wa-sh
+IssueTracker: https://github.com/K0RBI02/wa-sh/issues
+Changelog: https://github.com/K0RBI02/wa-sh/blob/HEAD/CHANGELOG.md
+WebSite: https://k0rbi02.github.io/wa-sh/
+
+AutoName: wa:sh
+
+RepoType: git
+Repo: https://github.com/K0RBI02/wa-sh.git
+
+Builds:
+  - versionName: 0.5.0
+    versionCode: 6
+    commit: v0.5.0
+    output: build/app/outputs/flutter-apk/app-release.apk
+    srclibs:
+      # Same Flutter version as the release build (check `flutter --version`).
+      - flutter@3.50.0
+    rm:
+      - custom_components
+      - tests
+    prebuild:
+      - export PATH="$$flutter$$/bin:$PATH"
+      - flutter config --no-analytics
+      # Creates android/, the native plugin and the app icon from the sources in tool/.
+      - python3 tool/setup.py
+      # F-Droid signs the app itself – build unsigned.
+      - sed -i -e '/signingConfig = /,+1d' android/app/build.gradle.kts
+    build:
+      - export PATH="$$flutter$$/bin:$PATH"
+      - flutter build apk --release
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9.]+$
+CurrentVersion: 0.5.0
+CurrentVersionCode: 6
