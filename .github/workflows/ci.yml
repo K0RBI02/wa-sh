@@ -35,7 +35,15 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: gradle
+
+      # android/ entsteht erst durch setup.py – daher eigener Gradle-Cache.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('pubspec.yaml', 'tool/setup.py') }}
+          restore-keys: gradle-
 
       - uses: subosito/flutter-action@v2
         with:
