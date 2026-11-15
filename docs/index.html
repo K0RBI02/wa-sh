@@ -16,11 +16,12 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --ink: #e9ecef; --bg: #111315; --card: #1d2024; --sub: #c4c9ce; --muted: #9aa0a6; --line: #3a3f45;
-      --pink: #4d3734; --green: #39422c; --peach: #4d3b2d; --good: #6cc070; --bad: #ef7a6d;
+      --ink: #eceef0; --bg: #121416; --card: #1e2125; --sub: #c4c9ce; --muted: #a9afb5; --line: #3a3f45;
+      --good: #6cc070; --bad: #ef7a6d;
     }
-    .doodle { filter: invert(1) hue-rotate(180deg); border-radius: 22px; }
-    .step { background: var(--card) !important; }
+    /* Pastellkarten bleiben hell – mit dunkler Schrift, wie in der App. */
+    .step { color: #212529; }
+    .step p { color: #3b4046; }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }

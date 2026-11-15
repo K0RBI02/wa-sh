@@ -1,7 +1,7 @@
 name: wash
 description: "wa:sh – nie wieder Wäsche im Keller vergessen."
 publish_to: "none"
-version: 0.5.0+6
+version: 0.5.1+7
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

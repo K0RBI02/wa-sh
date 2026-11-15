@@ -18,6 +18,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     final store = StoreScope.of(context);
     final now = DateTime.now();
     final wash = store.run(Machine.wash);
@@ -37,7 +38,7 @@ class HomeScreen extends StatelessWidget {
     };
 
     return Scaffold(
-      backgroundColor: C.bg,
+      backgroundColor: c.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
@@ -46,7 +47,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('wa:sh', style: font(size: 20, weight: FontWeight.w700, spacing: -0.6)),
+                  Text('wa:sh', style: font(size: 20, weight: FontWeight.w700, spacing: -0.6, color: c.ink)),
                   const Spacer(),
                   RoundIcon(
                     icon: Icons.tune,
@@ -56,9 +57,9 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 36),
-              Text(headline, style: display(56)),
+              Text(headline, style: display(56, c.ink)),
               const SizedBox(height: 14),
-              Text(sub, style: font(size: 17, height: 1.35, color: C.sub)),
+              Text(sub, style: font(size: 17, height: 1.35, color: c.sub)),
               const SizedBox(height: 32),
               Expanded(
                 child: LayoutBuilder(builder: (context, box) {
@@ -79,7 +80,7 @@ class HomeScreen extends StatelessWidget {
                   );
                 }),
               ),
-              Text(footer, textAlign: TextAlign.center, style: font(size: 15, color: C.muted)),
+              Text(footer, textAlign: TextAlign.center, style: font(size: 15, color: c.muted)),
             ],
           ),
         ),
@@ -98,13 +99,15 @@ class _MachineTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     final r = run;
     final open = r == null
         ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StartScreen(machine: machine)))
         : () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MachineFlow(machine: machine)));
 
-    return Material(
-      color: C.machine(machine),
+    return Pastel(
+      child: Material(
+      color: c.machine(machine),
       borderRadius: BorderRadius.circular(28),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -129,6 +132,7 @@ class _MachineTile extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -140,12 +144,13 @@ class _Idle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(machine.verb, style: font(size: 26, weight: FontWeight.w600, height: 1, spacing: -0.8)),
+        Text(machine.verb, style: font(size: 26, weight: FontWeight.w600, height: 1, spacing: -0.8, color: c.ink)),
         const SizedBox(height: 3),
-        Text(t.idle, style: font(size: 13, color: C.sub)),
+        Text(t.idle, style: font(size: 13, color: c.sub)),
         Expanded(
           child: Center(
             child: FittedBox(
@@ -159,12 +164,12 @@ class _Idle extends StatelessWidget {
         ),
         Container(
           height: 44,
-          decoration: ShapeDecoration(color: C.ink, shape: StadiumBorder()),
+          decoration: ShapeDecoration(color: c.ink, shape: StadiumBorder()),
           alignment: Alignment.center,
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.start, style: font(size: 15, weight: FontWeight.w600, color: C.white)),
+            Text(t.start, style: font(size: 15, weight: FontWeight.w600, color: c.white)),
             const SizedBox(width: 8),
-            Icon(Icons.add, size: 18, color: C.white),
+            Icon(Icons.add, size: 18, color: c.white),
           ]),
         ),
       ],
@@ -180,6 +185,7 @@ class _Busy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     final done = run.isDone(now);
     final rem = run.remaining(now);
     final (big, unit) = done
@@ -211,12 +217,12 @@ class _Busy extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
-                child: Text(big, style: font(size: 44, weight: FontWeight.w600, height: 1, spacing: -1.7, features: tabular)),
+                child: Text(big, style: font(size: 44, weight: FontWeight.w600, height: 1, spacing: -1.7, features: tabular, color: c.ink)),
               ),
             ),
             if (unit.isNotEmpty) ...[
               const SizedBox(width: 4),
-              Text(unit, style: font(size: 15, weight: FontWeight.w600)),
+              Text(unit, style: font(size: 15, weight: FontWeight.w600, color: c.ink)),
             ],
           ],
         ),
@@ -226,8 +232,8 @@ class _Busy extends StatelessWidget {
           child: SizedBox(
             height: 4,
             child: Stack(children: [
-              Container(color: C.ink.withAlpha(38)),
-              FractionallySizedBox(widthFactor: run.progress(now), child: Container(color: C.ink)),
+              Container(color: c.ink.withAlpha(38)),
+              FractionallySizedBox(widthFactor: run.progress(now), child: Container(color: c.ink)),
             ]),
           ),
         ),
@@ -236,8 +242,8 @@ class _Busy extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(children: [
-                TextSpan(text: done ? t.since : t.doneAtLabel, style: font(size: 13, color: C.sub)),
-                TextSpan(text: formatClock(run.end), style: font(size: 13, weight: FontWeight.w600)),
+                TextSpan(text: done ? t.since : t.doneAtLabel, style: font(size: 13, color: c.sub)),
+                TextSpan(text: formatClock(run.end), style: font(size: 13, weight: FontWeight.w600, color: c.ink)),
               ]),
               maxLines: 1,
             ),
@@ -245,8 +251,8 @@ class _Busy extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(color: C.ink, shape: BoxShape.circle),
-            child: Icon(Icons.arrow_forward, size: 16, color: C.white),
+            decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle),
+            child: Icon(Icons.arrow_forward, size: 16, color: c.white),
           ),
         ]),
       ],
@@ -286,16 +292,17 @@ class _ChipState extends State<_Chip> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 5, 10, 5),
-      decoration: BoxDecoration(color: C.white.withAlpha(166), borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(color: c.white.withAlpha(166), borderRadius: BorderRadius.circular(999)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         FadeTransition(
           opacity: Tween(begin: 1.0, end: 0.25).animate(_c),
-          child: Container(width: 7, height: 7, decoration: BoxDecoration(color: C.ink, shape: BoxShape.circle)),
+          child: Container(width: 7, height: 7, decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle)),
         ),
         const SizedBox(width: 6),
-        Text(widget.text, style: font(size: 12, weight: FontWeight.w600)),
+        Text(widget.text, style: font(size: 12, weight: FontWeight.w600, color: c.ink)),
       ]),
     );
   }

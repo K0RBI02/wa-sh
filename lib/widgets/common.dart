@@ -13,6 +13,7 @@ class StepBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Semantics(
       label: progress == null
           ? t.step(active + 1)
@@ -22,24 +23,24 @@ class StepBar extends StatelessWidget {
         children: [
           for (var i = 0; i < 3; i++) ...[
             if (i > 0) const SizedBox(width: 10),
-            Expanded(child: _segment(i)),
+            Expanded(child: _segment(i, c)),
           ],
         ],
       ),
     );
   }
 
-  Widget _segment(int i) {
+  Widget _segment(int i, Pal c) {
     if (i == active && progress != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: SizedBox(
           height: 4,
           child: Stack(children: [
-            Container(color: C.ink.withAlpha(46)),
+            Container(color: c.ink.withAlpha(46)),
             FractionallySizedBox(
               widthFactor: progress!.clamp(0.0, 1.0),
-              child: Container(color: C.ink),
+              child: Container(color: c.ink),
             ),
           ]),
         ),
@@ -49,7 +50,7 @@ class StepBar extends StatelessWidget {
     return Container(
       height: 4,
       decoration: BoxDecoration(
-        color: done ? C.ink : C.ink.withAlpha(56),
+        color: done ? c.ink : c.ink.withAlpha(56),
         borderRadius: BorderRadius.circular(4),
       ),
     );
@@ -68,6 +69,7 @@ class Tap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Semantics(
       button: true,
       selected: selected,
@@ -96,8 +98,9 @@ class PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Material(
-      color: C.ink,
+      color: c.ink,
       shape: const StadiumBorder(),
       child: InkWell(
         customBorder: const StadiumBorder(),
@@ -110,10 +113,10 @@ class PillButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(label, style: font(size: 16, weight: FontWeight.w600, color: C.white)),
+              Text(label, style: font(size: 16, weight: FontWeight.w600, color: c.white)),
               if (icon != null) ...[
                 const SizedBox(width: 8),
-                Icon(icon, size: 18, color: C.white),
+                Icon(icon, size: 18, color: c.white),
               ],
             ],
           ),
@@ -133,6 +136,7 @@ class SideLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Tap(
       onTap: onTap,
       radius: 12,
@@ -144,8 +148,8 @@ class SideLink extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(question, style: font(size: 14, color: C.sub, height: 1.3)),
-              Text(action, style: font(size: 14, weight: FontWeight.w600, height: 1.3)),
+              Text(question, style: font(size: 14, color: c.sub, height: 1.3)),
+              Text(action, style: font(size: 14, weight: FontWeight.w600, height: 1.3, color: c.ink)),
             ],
           ),
         ),
@@ -175,11 +179,12 @@ class RoundIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     return Semantics(
       button: true,
       label: label,
       child: Material(
-        color: background ?? C.ink,
+        color: background ?? c.ink,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -187,7 +192,7 @@ class RoundIcon extends StatelessWidget {
           child: SizedBox(
             width: size,
             height: size,
-            child: Icon(icon, size: size * 0.45, color: foreground ?? C.white),
+            child: Icon(icon, size: size * 0.45, color: foreground ?? c.white),
           ),
         ),
       ),
@@ -204,13 +209,14 @@ class RichBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = C.of(context);
     final parts = text.split('**');
     return Text.rich(
       TextSpan(children: [
         for (var i = 0; i < parts.length; i++)
           TextSpan(
             text: parts[i],
-            style: font(size: size, height: 1.3, weight: i.isOdd ? FontWeight.w600 : FontWeight.w400),
+            style: font(size: size, height: 1.3, weight: i.isOdd ? FontWeight.w600 : FontWeight.w400, color: c.ink),
           ),
       ]),
     );

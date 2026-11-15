@@ -48,7 +48,7 @@ class DoodlePart {
 
   /// Weißer Punkt ohne Kontur (die kleinen Sprenkel in den schwarzen Flächen).
   factory DoodlePart.dot(double cx, double cy, double r) =>
-      DoodlePart.circle(cx, cy, r, fill: C.white, stroke: null);
+      DoodlePart.circle(cx, cy, r, fill: Pal.day.white, stroke: null);
 
   final Path Function() _build;
   late final Path path = _build();
@@ -166,7 +166,8 @@ class _DoodlePainter extends CustomPainter {
       if (p.fill != null) {
         canvas.drawPath(p.path, Paint()..color = _alpha(p.fill!, opacity));
       }
-      final stroke = p.stroke == DoodlePart.inkStroke ? C.doodle : p.stroke;
+      // Doodles stehen immer auf Pastell → immer die dunkle Strichfarbe.
+      final stroke = p.stroke == DoodlePart.inkStroke ? Pal.day.doodle : p.stroke;
       if (stroke != null) {
         canvas.drawPath(
           p.path,

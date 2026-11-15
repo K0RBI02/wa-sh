@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 – unreleased
+
+### App
+- Dark mode reworked: the pastel cards and step screens stay light with dark
+  text (“light islands”), only the neutral surfaces go dark.
+
 ## 0.5.0 – 2026-11-15
 
 ### App

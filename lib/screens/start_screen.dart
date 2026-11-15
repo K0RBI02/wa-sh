@@ -12,6 +12,9 @@ import '../widgets/doodles.dart';
 import 'machine_flow.dart';
 import '../l10n.dart';
 
+/// Dieser Screen ist eine Pastell-Insel: immer die hellen Farben, auch im Dunkelmodus.
+const c = Pal.day;
+
 /// Schritt 1: Maschine und Programm wählen (oder eigene Zeit).
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key, required this.machine});
@@ -84,12 +87,14 @@ class _StartScreenState extends State<StartScreen> {
     if (running != null) {
       final ok = await showDialog<bool>(
         context: context,
-        builder: (c) => AlertDialog(
-          title: Text(t.alreadyRunning(_machine), style: font(size: 20, weight: FontWeight.w600)),
+        // Dialog folgt dem System (hell/dunkel), nicht der Pastell-Insel.
+        builder: (dc) => AlertDialog(
+          backgroundColor: C.white,
+          title: Text(t.alreadyRunning(_machine), style: font(size: 20, weight: FontWeight.w600, color: C.ink)),
           content: Text(t.replaceTimer, style: font(size: 15, color: C.sub)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.keep)),
-            TextButton(onPressed: () => Navigator.pop(c, true), child: Text(t.restart)),
+            TextButton(onPressed: () => Navigator.pop(dc, false), child: Text(t.keep, style: font(weight: FontWeight.w600, color: C.ink))),
+            TextButton(onPressed: () => Navigator.pop(dc, true), child: Text(t.restart, style: font(weight: FontWeight.w600, color: C.ink))),
           ],
         ),
       );
@@ -106,10 +111,11 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final store = StoreScope.of(context);
     final programs = store.programs(_machine);
-    return Scaffold(
-      backgroundColor: C.pink,
+    return pastelScreen(Scaffold(
+      backgroundColor: c.pink,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(28, 20, 28, 24),
@@ -118,7 +124,7 @@ class _StartScreenState extends State<StartScreen> {
             children: [
               const StepBar(active: 0),
               const SizedBox(height: 32),
-              Text(t.startTitle, style: display()),
+              Text(t.startTitle, style: display(58, c.ink)),
               Expanded(
                 child: Center(
                   child: FittedBox(
@@ -126,7 +132,7 @@ class _StartScreenState extends State<StartScreen> {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: Doodle(
-                        _machine == Machine.wash ? washerStart(C.pink) : dryerStart(C.pink),
+                        _machine == Machine.wash ? washerStart(c.pink) : dryerStart(c.pink),
                         key: ValueKey(_machine),
                         width: 280,
                       ),
@@ -163,7 +169,7 @@ class _StartScreenState extends State<StartScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -176,6 +182,7 @@ class _MachineToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return LayoutBuilder(builder: (context, box) {
       const gap = 8.0;
       final w = (box.maxWidth - gap).floorToDouble();
@@ -199,8 +206,8 @@ class _MachineToggle extends StatelessWidget {
       height: 44,
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
-        color: sel ? C.ink : Colors.transparent,
-        shape: StadiumBorder(side: BorderSide(color: sel ? C.ink : C.ink.withAlpha(90), width: 1.5)),
+        color: sel ? c.ink : Colors.transparent,
+        shape: StadiumBorder(side: BorderSide(color: sel ? c.ink : c.ink.withAlpha(90), width: 1.5)),
       ),
       child: Tap(
         onTap: () => onPick(m),
@@ -210,7 +217,7 @@ class _MachineToggle extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(m == Machine.wash ? Icons.local_laundry_service_outlined : Icons.air,
-                size: 20, color: sel ? C.white : C.ink),
+                size: 20, color: sel ? c.white : c.ink),
             if (sel) ...[
               const SizedBox(width: 8),
               Flexible(
@@ -218,7 +225,7 @@ class _MachineToggle extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.fade,
                     softWrap: false,
-                    style: font(size: 15, weight: FontWeight.w500, color: C.white)),
+                    style: font(size: 15, weight: FontWeight.w500, color: c.white)),
               ),
             ],
           ],
@@ -253,6 +260,7 @@ class _ProgramRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return LayoutBuilder(builder: (context, box) {
       final w = box.maxWidth;
       final unit = ((w - 16) / 4).floorToDouble();
@@ -314,8 +322,8 @@ class _ProgramRow extends StatelessWidget {
     required Widget child,
   }) {
     final border = selected
-        ? Border.all(color: C.ink, width: 1.5)
-        : Border.all(color: dashed ? C.ink.withAlpha(115) : Colors.transparent, width: 1.5);
+        ? Border.all(color: c.ink, width: 1.5)
+        : Border.all(color: dashed ? c.ink.withAlpha(115) : Colors.transparent, width: 1.5);
     return AnimatedContainer(
       duration: _anim,
       curve: easeOut,
@@ -323,7 +331,7 @@ class _ProgramRow extends StatelessWidget {
       margin: EdgeInsets.only(left: gap),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? C.white : (dashed ? Colors.transparent : C.white.withAlpha(115)),
+        color: selected ? c.white : (dashed ? Colors.transparent : c.white.withAlpha(115)),
         borderRadius: BorderRadius.circular(18),
         border: border,
       ),
@@ -348,6 +356,7 @@ class _ProgramLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Tap(
       onTap: onTap,
       radius: 18,
@@ -361,8 +370,8 @@ class _ProgramLabel extends StatelessWidget {
             Text(title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: font(size: 14, weight: bold ? FontWeight.w600 : FontWeight.w500)),
-            Text(sub, maxLines: 1, overflow: TextOverflow.clip, style: font(size: 12, color: C.sub)),
+                style: font(size: 14, weight: bold ? FontWeight.w600 : FontWeight.w500, color: c.ink)),
+            Text(sub, maxLines: 1, overflow: TextOverflow.clip, style: font(size: 12, color: c.sub)),
           ],
         ),
       ),
@@ -379,23 +388,24 @@ class _CustomEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         children: [
           RoundIcon(icon: Icons.remove, label: t.minus15, onTap: () => onStep(-15),
-              background: C.pink, foreground: C.ink, size: 40),
+              background: c.pink, foreground: c.ink, size: 40),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(formatDuration(minutes), style: font(size: 18, weight: FontWeight.w600, features: tabular)),
-                Text(t.customTime, style: font(size: 11, color: C.sub)),
+                Text(formatDuration(minutes), style: font(size: 18, weight: FontWeight.w600, features: tabular, color: c.ink)),
+                Text(t.customTime, style: font(size: 11, color: c.sub)),
               ],
             ),
           ),
           RoundIcon(icon: Icons.add, label: t.plus15, onTap: () => onStep(15),
-              background: C.pink, foreground: C.ink, size: 40),
+              background: c.pink, foreground: c.ink, size: 40),
           const SizedBox(width: 6),
           RoundIcon(icon: Icons.check, label: t.applyTime, onTap: onDone, size: 40),
         ],

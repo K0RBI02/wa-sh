@@ -10,6 +10,9 @@ import '../widgets/doodles.dart';
 import 'start_screen.dart';
 import '../l10n.dart';
 
+/// Dieser Screen ist eine Pastell-Insel: immer die hellen Farben, auch im Dunkelmodus.
+const c = Pal.day;
+
 /// Schritt 2 (läuft) und Schritt 3 (abholen) für eine Maschine.
 /// Wechselt von selbst, sobald die Zeit um ist.
 class MachineFlow extends StatelessWidget {
@@ -19,6 +22,7 @@ class MachineFlow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final store = StoreScope.of(context);
     final run = store.run(machine);
     final now = DateTime.now();
@@ -30,13 +34,13 @@ class MachineFlow extends StatelessWidget {
           Navigator.of(context).maybePop();
         }
       });
-      return Scaffold(backgroundColor: C.bg);
+      return Scaffold(backgroundColor: c.bg);
     }
 
     final done = run.isDone(now);
-    return AnimatedContainer(
+    return pastelScreen(AnimatedContainer(
       duration: const Duration(milliseconds: 500),
-      color: done ? C.peach : C.green,
+      color: done ? c.peach : c.green,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -51,7 +55,7 @@ class MachineFlow extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -72,6 +76,7 @@ class _RunningView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final store = StoreScope.read(context);
     final m = run.machine;
     return Column(
@@ -79,25 +84,25 @@ class _RunningView extends StatelessWidget {
       children: [
         StepBar(active: 1, progress: run.progress(now)),
         const SizedBox(height: 32),
-        Text(t.relaxTitle, style: display()),
+        Text(t.relaxTitle, style: display(58, c.ink)),
         Expanded(
           child: Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(machineRunning(C.green), width: 280)),
+            child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(machineRunning(c.green), width: 280)),
           ),
         ),
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 10,
           children: [
-            Text(_countdown(), style: font(size: 52, weight: FontWeight.w600, height: 1, spacing: -1.5, features: tabular)),
+            Text(_countdown(), style: font(size: 52, weight: FontWeight.w600, height: 1, spacing: -1.5, features: tabular, color: c.ink)),
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
-              child: Text(t.finishesAt(formatClock(run.end)), style: font(size: 15, color: C.sub)),
+              child: Text(t.finishesAt(formatClock(run.end)), style: font(size: 15, color: c.sub)),
             ),
           ],
         ),
         const SizedBox(height: 6),
-        Text('${m.label} · ${run.programName}', style: font(size: 14, color: C.sub)),
+        Text('${m.label} · ${run.programName}', style: font(size: 14, color: c.sub)),
         const SizedBox(height: 14),
         RichBody(t.runningBody(m, reminderLead.inMinutes)),
         const SizedBox(height: 28),
@@ -116,7 +121,7 @@ class _RunningView extends StatelessWidget {
               radius: 12,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                child: Text(t.alreadyDone, style: font(size: 15, weight: FontWeight.w600)),
+                child: Text(t.alreadyDone, style: font(size: 15, weight: FontWeight.w600, color: c.ink)),
               ),
             ),
           ],
@@ -148,6 +153,7 @@ class _DoneViewState extends State<_DoneView> {
 
   @override
   Widget build(BuildContext context) {
+
     final store = StoreScope.read(context);
     final m = widget.run.machine;
     final dryerFree = m == Machine.wash && store.run(Machine.dry) == null;
@@ -157,28 +163,28 @@ class _DoneViewState extends State<_DoneView> {
       children: [
         const StepBar(active: 2),
         const SizedBox(height: 32),
-        Text(t.basementTitle, style: display()),
+        Text(t.basementTitle, style: display(58, c.ink)),
         Expanded(
           child: Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(laundryDone(C.peach), width: 280)),
+            child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(laundryDone(c.peach), width: 280)),
           ),
         ),
         RichBody(t.doneBody(m)),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(color: C.white.withAlpha(140), borderRadius: BorderRadius.circular(18)),
+          decoration: BoxDecoration(color: c.white.withAlpha(140), borderRadius: BorderRadius.circular(18)),
           child: Row(children: [
-            Icon(Icons.alarm, size: 22, color: C.ink),
+            Icon(Icons.alarm, size: 22, color: c.ink),
             const SizedBox(width: 12),
-            Text(t.doneSpace, style: font(size: 14, color: C.sub)),
-            Text(_since(), style: font(size: 14, weight: FontWeight.w600)),
+            Text(t.doneSpace, style: font(size: 14, color: c.sub)),
+            Text(_since(), style: font(size: 14, weight: FontWeight.w600, color: c.ink)),
           ]),
         ),
         if (dryerFree) ...[
           const SizedBox(height: 10),
           Material(
-            color: C.white,
+            color: c.white,
             borderRadius: BorderRadius.circular(18),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
@@ -193,15 +199,15 @@ class _DoneViewState extends State<_DoneView> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(children: [
-                  Icon(Icons.air, size: 26, color: C.ink),
+                  Icon(Icons.air, size: 26, color: c.ink),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(t.onToDryer, style: font(size: 15, weight: FontWeight.w600)),
-                      Text(t.onToDryerSub, style: font(size: 13, color: C.sub)),
+                      Text(t.onToDryer, style: font(size: 15, weight: FontWeight.w600, color: c.ink)),
+                      Text(t.onToDryerSub, style: font(size: 13, color: c.sub)),
                     ]),
                   ),
-                  Icon(Icons.arrow_forward, size: 20, color: C.ink),
+                  Icon(Icons.arrow_forward, size: 20, color: c.ink),
                 ]),
               ),
             ),

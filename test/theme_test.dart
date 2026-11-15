@@ -21,4 +21,12 @@ void main() {
     expect(C.ink.computeLuminance(), lessThan(C.white.computeLuminance()));
     expect(buildTheme().brightness, Brightness.light);
   });
+
+  test('Pastell bleibt im Dunkelmodus hell, Inseln nutzen den hellen Satz', () {
+    C.dark = false;
+    final pink = C.pink;
+    C.dark = true;
+    expect(C.pink, pink);
+    expect(Pal.day.ink.computeLuminance(), lessThan(C.pink.computeLuminance()));
+  });
 }
