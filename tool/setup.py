@@ -113,6 +113,20 @@ RECEIVERS = """        <receiver android:exported="false" android:name="com.dext
 """
 
 
+INTENT_FILTERS = """    <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="wash"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="wash"/>
+            </intent-filter>
+"""
+
+
 def patch_manifest(text):
     if "POST_NOTIFICATIONS" not in text:
         text = text.replace("    <application", PERMISSIONS + "    <application", 1)
@@ -131,6 +145,12 @@ def patch_manifest(text):
     if "enableOnBackInvokedCallback" not in text:
         # Vorschau-Animation beim Zurückwischen (Android 14+)
         text = text.replace("<application", '<application\n        android:enableOnBackInvokedCallback="true"', 1)
+    if "android:scheme=\"wash\"" not in text:
+        # wash://start?… aus Links und von NFC-Stickern an der Maschine
+        text = text.replace("</activity>", INTENT_FILTERS + "        </activity>", 1)
+    if "flutter_deeplinking_enabled" not in text:
+        # Links verarbeitet die App selbst (Plugin wash_live), nicht der Flutter-Router
+        text = text.replace("</activity>", '    <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>\n        </activity>', 1)
     if "ScheduledNotificationReceiver" not in text:
         text = text.replace("    </application>", RECEIVERS + "    </application>", 1)
     text = re.sub(r'android:label="[^"]*"', f'android:label="{APP_NAME}"', text, count=1)

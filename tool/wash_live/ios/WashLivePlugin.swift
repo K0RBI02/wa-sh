@@ -76,8 +76,11 @@ public class WashLivePlugin: NSObject, FlutterPlugin {
               let machine = items.first(where: { $0.name == "machine" })?.value
         else { return nil }
         var data = ["machine": machine]
-        if let action = items.first(where: { $0.name == "action" })?.value {
-            data["action"] = action
+        // wash://start?machine=…&program=1 (bzw. &minutes=90) – z. B. aus einem
+        // Kurzbefehl, der beim Scannen eines NFC-Stickers den Link öffnet.
+        if url.host == "start" { data["action"] = "start" }
+        for key in ["action", "program", "minutes", "name"] where data[key] == nil {
+            if let value = items.first(where: { $0.name == key })?.value { data[key] = value }
         }
         return data
     }

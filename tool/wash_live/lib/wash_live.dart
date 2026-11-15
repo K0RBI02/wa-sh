@@ -76,11 +76,24 @@ class WashLive {
     }
   }
 
+  /// `wash://start?machine=wash&program=1` (oder `&minutes=90&name=…`) –
+  /// Link bzw. NFC-Sticker an der Maschine.
+  static void Function(String machine, {int? program, int? minutes, String? name})? onStartLink;
+
   static void _dispatch(Object? data) {
     if (data is! Map) return;
     final machine = data['machine'];
     if (machine is! String) return;
     final action = data['action'];
+    if (action == 'start') {
+      onStartLink?.call(
+        machine,
+        program: int.tryParse('${data['program']}'),
+        minutes: int.tryParse('${data['minutes']}'),
+        name: data['name'] is String ? data['name'] as String : null,
+      );
+      return;
+    }
     onOpen?.call(machine, action is String && action.isNotEmpty ? action : null);
   }
 }

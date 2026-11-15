@@ -2,6 +2,7 @@ package de.k0rbi02.wash_live;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -110,6 +111,8 @@ public class WashLivePlugin implements FlutterPlugin, MethodChannel.MethodCallHa
 
     private static Map<String, String> extract(Intent i) {
         if (i == null) return null;
+        Map<String, String> link = fromLink(i);
+        if (link != null) return link;
         String machine = i.getStringExtra(LiveRunService.EXTRA_MACHINE);
         if (machine == null) return null;
         Map<String, String> m = new HashMap<>();
@@ -117,6 +120,27 @@ public class WashLivePlugin implements FlutterPlugin, MethodChannel.MethodCallHa
         m.put("action", i.getStringExtra(LiveRunService.EXTRA_ACTION));
         i.removeExtra(LiveRunService.EXTRA_MACHINE);
         i.removeExtra(LiveRunService.EXTRA_ACTION);
+        return m;
+    }
+
+    /**
+     * wash://start?machine=wash&program=1 (bzw. &minutes=90) – aus einem Link
+     * oder von einem NFC-Sticker an der Maschine.
+     */
+    private static Map<String, String> fromLink(Intent i) {
+        Uri uri = i.getData();
+        if (uri == null || !"wash".equals(uri.getScheme())) return null;
+        String machine = uri.getQueryParameter("machine");
+        if (machine == null) return null;
+        Map<String, String> m = new HashMap<>();
+        m.put("machine", machine);
+        String action = "start".equals(uri.getHost()) ? "start" : uri.getQueryParameter("action");
+        if (action != null) m.put("action", action);
+        for (String key : new String[] {"program", "minutes", "name"}) {
+            String v = uri.getQueryParameter(key);
+            if (v != null) m.put(key, v);
+        }
+        i.setData(null); // nicht nochmal auslösen (z. B. nach Drehen)
         return m;
     }
 }

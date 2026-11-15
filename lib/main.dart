@@ -45,6 +45,7 @@ Future<void> main() async {
   };
 
   final shortcuts = _Shortcuts(store);
+  WashLive.onStartLink = shortcuts.startFromLink;
 
   runApp(StoreScope(store: store, child: WashApp(onLocaleChanged: shortcuts.sync)));
   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,8 +55,8 @@ Future<void> main() async {
   });
 }
 
-/// Schnellstart über das App-Icon (lange drücken): je Maschine die zwei
-/// gespeicherten Programme – startet den Timer sofort.
+/// Schnellstart über das App-Icon (lange drücken) und über Links bzw.
+/// NFC-Sticker: startet den Timer sofort.
 class _Shortcuts {
   _Shortcuts(this.store);
 
@@ -92,7 +93,23 @@ class _Shortcuts {
     final m = Machine.values.where((x) => x.name == parts[1]).firstOrNull;
     final i = int.tryParse(parts[2]);
     if (m == null || i == null || i < 0 || i > 1) return;
+    await start(m, program: i);
+  }
 
+  /// Link bzw. NFC-Sticker: `wash://start?machine=wash&program=1` (1 oder 2)
+  /// oder `&minutes=90` (optional `&name=…`).
+  void startFromLink(String machine, {int? program, int? minutes, String? name}) {
+    final m = Machine.values.where((x) => x.name == machine).firstOrNull;
+    if (m == null) return;
+    if (minutes != null && minutes > 0 && minutes <= 600) {
+      start(m, minutes: minutes, name: name);
+    } else {
+      start(m, program: ((program ?? 1) - 1).clamp(0, 1));
+    }
+  }
+
+  /// Startet sofort – außer die Maschine läuft schon, dann nur anzeigen.
+  Future<void> start(Machine m, {int program = 0, int? minutes, String? name}) async {
     final nav = navigatorKey.currentState;
     final running = store.run(m);
     if (running != null && !running.isDone(DateTime.now())) {
@@ -101,7 +118,7 @@ class _Shortcuts {
       nav?.push(MaterialPageRoute(builder: (_) => MachineFlow(machine: m)));
       return;
     }
-    final p = store.programs(m)[i];
+    final p = minutes != null ? Program(name ?? t.customTime, minutes) : store.programs(m)[program];
     final run = await store.start(m, p.name, p.minutes);
     HapticFeedback.mediumImpact();
     nav?.popUntil((r) => r.isFirst);

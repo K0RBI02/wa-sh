@@ -10,20 +10,20 @@ class C {
 
   static bool dark = false;
 
-  static Color _(int light, int night) => Color(dark ? night : light);
+  static Color _pick(int light, int night) => Color(dark ? night : light);
 
-  static Color get ink => _(0xFF212529, 0xFFE9ECEF);
-  static Color get doodle => _(0xFF1A1A1A, 0xFFE9ECEF);
-  static Color get bg => _(0xFFF5F6F7, 0xFF111315);
-  static Color get white => _(0xFFFFFFFF, 0xFF1D2024);
-  static Color get pink => _(0xFFF7D6D2, 0xFF4D3734);
-  static Color get green => _(0xFFEEF6DC, 0xFF39422C);
-  static Color get peach => _(0xFFFCE3CF, 0xFF4D3B2D);
-  static Color get sub => _(0xFF3B4046, 0xFFC4C9CE);
-  static Color get muted => _(0xFF5C6168, 0xFF9AA0A6);
-  static Color get line => _(0xFFD6D9DC, 0xFF3A3F45);
-  static Color get good => _(0xFF3E8E41, 0xFF6CC070);
-  static Color get bad => _(0xFFC0392B, 0xFFEF7A6D);
+  static Color get ink => _pick(0xFF212529, 0xFFE9ECEF);
+  static Color get doodle => _pick(0xFF1A1A1A, 0xFFE9ECEF);
+  static Color get bg => _pick(0xFFF5F6F7, 0xFF111315);
+  static Color get white => _pick(0xFFFFFFFF, 0xFF1D2024);
+  static Color get pink => _pick(0xFFF7D6D2, 0xFF4D3734);
+  static Color get green => _pick(0xFFEEF6DC, 0xFF39422C);
+  static Color get peach => _pick(0xFFFCE3CF, 0xFF4D3B2D);
+  static Color get sub => _pick(0xFF3B4046, 0xFFC4C9CE);
+  static Color get muted => _pick(0xFF5C6168, 0xFF9AA0A6);
+  static Color get line => _pick(0xFFD6D9DC, 0xFF3A3F45);
+  static Color get good => _pick(0xFF3E8E41, 0xFF6CC070);
+  static Color get bad => _pick(0xFFC0392B, 0xFFEF7A6D);
 
   static Color machine(Machine m) => m == Machine.wash ? pink : peach;
 }
