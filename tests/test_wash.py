@@ -19,6 +19,7 @@ from pytest_homeassistant_custom_component.common import (
 )
 
 from custom_components.wash.const import DOMAIN
+from custom_components.wash.pairing import async_register_view
 
 
 async def _start(hass: HomeAssistant, name: str = "Waschküche"):
@@ -50,7 +51,10 @@ async def client(hass: HomeAssistant, hass_client_no_auth, monkeypatch):
     # Im echten Betrieb wartet die Antwort, bis der Dialog den Eintrag angelegt
     # hat (das macht dort das Frontend). Im Test gibt es kein Frontend.
     monkeypatch.setattr("custom_components.wash.pairing._READY_TIMEOUT", 0)
+    # Im Test friert der Client die Routen ein – also vorher alles anmelden.
     assert await async_setup_component(hass, "http", {})
+    assert await async_setup_component(hass, "webhook", {})
+    async_register_view(hass)
     return await hass_client_no_auth()
 
 

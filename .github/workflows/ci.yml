@@ -4,7 +4,23 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+    # Änderungen nur an der HA-Integration oder an Texten brauchen keinen App-Build.
+    paths-ignore:
+      - "custom_components/**"
+      - "tests/**"
+      - "hacs.json"
+      - "pytest.ini"
+      - "**.md"
+      - ".github/workflows/integration.yml"
   pull_request:
+    paths-ignore:
+      - "custom_components/**"
+      - "tests/**"
+      - "hacs.json"
+      - "pytest.ini"
+      - "**.md"
+      - ".github/workflows/integration.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,6 +35,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
       - uses: subosito/flutter-action@v2
         with:
