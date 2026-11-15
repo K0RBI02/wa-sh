@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-35 -32 300 260" width="300" height="260">
+<style>
+.bob{animation:bob 2.4s ease-in-out infinite}
+.spin{animation:spin 4.8s linear infinite}
+.ring{animation:ring 3.2s ease-in-out infinite}
+.hum,.buzz{animation:hum 1.6s ease-in-out infinite}
+.nudge{animation:nudge 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ring{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(12deg)}82%{transform:rotate(-10deg)}88%{transform:rotate(6deg)}94%{transform:rotate(-3deg)}}
+@keyframes hum{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(-3px,1px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect x="-35" y="-32" width="300" height="260" rx="32" fill="#FCE3CF"/>
+  <path d="M58 82 Q62 52 88 58 Q100 34 128 48 Q150 40 162 66 Q170 74 166 84" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M96 60 Q104 70 116 62" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M140 54 Q146 64 140 74" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 96 Q40 86 50 86 L172 84 Q182 84 182 94 L182 100 L40 102 Z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 104 L174 102 L160 176 Q159 182 152 182 L70 183 Q63 183 62 177 Z" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M57 128 L167 126 M63 154 L162 153" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M90 108 L94 178 M132 107 L129 178" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="75" cy="118" r="1.5" fill="#FFFFFF"/>
+  <circle cx="112" cy="140" r="1.5" fill="#FFFFFF"/>
+  <circle cx="148" cy="166" r="1.5" fill="#FFFFFF"/>
+  <path d="M170 92 Q186 104 180 122 Q176 132 184 138" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g class="ring" style="transform-origin:195px 10px;"><path d="M186 22 Q187 12 195 12 Q203 12 205 22 L208 40 L182 41 Z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g class="ring" style="transform-origin:195px 10px;"><path d="M178 42 L212 40" fill="none" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g class="ring" style="transform-origin:195px 10px;"><circle cx="195" cy="47" r="3.5" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g class="buzz" style="transform-box:fill-box;transform-origin:center;"><path d="M170 12 L176 17 M168 28 L175 28 M218 10 L213 16 M222 26 L215 27" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <path d="M24 60 L30 54 M20 46 L28 46 M26 34 L31 40" fill="none" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
