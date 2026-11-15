@@ -1,0 +1,4 @@
+• Dunkelmodus
+• Timer per NFC-Sticker an der Maschine starten
+• Starten und Abholen aus Home Assistant
+• Wäschekorb in der Statusleiste

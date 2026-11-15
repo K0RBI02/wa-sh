@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.0 – unreleased
+## 0.5.0 – 2026-11-15
 
 ### App
 - Dark mode: follows the system, doodles invert (light lines on dark surfaces).

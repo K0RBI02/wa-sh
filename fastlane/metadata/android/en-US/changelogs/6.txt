@@ -1,0 +1,4 @@
+• Dark mode
+• Start the timer from an NFC sticker at the machine
+• Start and collect from Home Assistant
+• Laundry basket in the status bar
