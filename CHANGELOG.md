@@ -5,6 +5,9 @@
 ### App
 - App icon and Home Assistant icon: just the laundry basket on white (Home
   Assistant gets a light version for dark themes).
+- My programs opens at 75 % and can be pulled up; the header with close and
+  the floating “Save” stay in place while the content scrolls; smoother
+  opening animation; no outline around the machine dots.
 - Launch screen: the laundry basket on white; in dark mode the same basket in
   light lines on a dark background.
 

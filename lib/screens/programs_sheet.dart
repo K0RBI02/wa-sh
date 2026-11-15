@@ -20,25 +20,37 @@ Future<void> showProgramsSheet(BuildContext context) {
     backgroundColor: C.white,
     barrierColor: C.dark ? Colors.black.withAlpha(150) : C.ink.withAlpha(115),
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+    sheetAnimationStyle: AnimationStyle(
+      duration: const Duration(milliseconds: 380),
+      reverseDuration: const Duration(milliseconds: 260),
+      curve: easeOut,
+    ),
     builder: (_) => const _ProgramsSheet(),
   );
 }
 
+/// „Meine Programme“: öffnet auf 75 %, lässt sich hochziehen. Kopf mit
+/// Schließen und „Speichern“ bleiben stehen, nur der Inhalt scrollt.
 class _ProgramsSheet extends StatelessWidget {
   const _ProgramsSheet();
 
   @override
   Widget build(BuildContext context) {
-    final store = StoreScope.of(context);
     final insets = MediaQuery.of(context).viewInsets.bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + insets),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      minChildSize: 0.4,
+      maxChildSize: 1,
+      snap: true,
+      snapSizes: const [0.75],
+      builder: (context, scroll) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Fester Kopf
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
@@ -61,44 +73,81 @@ class _ProgramsSheet extends StatelessWidget {
                 ),
               ],
             ),
-            for (final m in Machine.values) ...[
-              const SizedBox(height: 20),
-              Row(children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: C.machine(m),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: C.ink, width: 1.5),
-                  ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                // Scrollender Inhalt – unten Platz für den schwebenden Knopf
+                ListView(
+                  controller: scroll,
+                  padding: EdgeInsets.fromLTRB(24, 8, 24, 112 + insets),
+                  children: const [_ProgramsList()],
                 ),
-                const SizedBox(width: 10),
-                Text(m.label, style: font(size: 18, weight: FontWeight.w600)),
-              ]),
-              const SizedBox(height: 10),
-              for (var i = 0; i < 2; i++) ...[
-                if (i > 0) const SizedBox(height: 10),
-                _ProgramCard(
-                  key: ValueKey('${m.name}-$i'),
-                  machine: m,
-                  index: i,
-                  program: store.programs(m)[i],
+                // Schwebendes „Speichern“ mit sanftem Übergang nach oben
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                      padding: EdgeInsets.fromLTRB(24, 28, 24, 20 + insets),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [C.white.withAlpha(0), C.white, C.white],
+                          stops: const [0, 0.45, 1],
+                        ),
+                      ),
+                      child: PillButton(label: t.save, expand: true, onTap: () => Navigator.of(context).pop()),
+                    ),
                 ),
               ],
-            ],
-            const SizedBox(height: 20),
-            Text(t.programsHint,
-                style: font(size: 14, height: 1.4, color: C.muted)),
-            const SizedBox(height: 28),
-            const _NotificationsRow(),
-            const SizedBox(height: 12),
-            const _HomeAssistantCard(),
-            const SizedBox(height: 20),
-            PillButton(label: t.save, expand: true, onTap: () => Navigator.of(context).pop()),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _ProgramsList extends StatelessWidget {
+  const _ProgramsList();
+
+  @override
+  Widget build(BuildContext context) {
+    final store = StoreScope.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final m in Machine.values) ...[
+          if (m != Machine.values.first) const SizedBox(height: 20),
+          Row(children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(color: C.machine(m), shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 10),
+            Text(m.label, style: font(size: 18, weight: FontWeight.w600)),
+          ]),
+          const SizedBox(height: 10),
+          for (var i = 0; i < 2; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            _ProgramCard(
+              key: ValueKey('${m.name}-$i'),
+              machine: m,
+              index: i,
+              program: store.programs(m)[i],
+            ),
+          ],
+        ],
+        const SizedBox(height: 20),
+        Text(t.programsHint, style: font(size: 14, height: 1.4, color: C.muted)),
+        const SizedBox(height: 28),
+        const _NotificationsRow(),
+        const SizedBox(height: 12),
+        const _HomeAssistantCard(),
+      ],
     );
   }
 }
