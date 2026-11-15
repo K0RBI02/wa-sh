@@ -125,6 +125,9 @@ def patch_manifest(text):
     if "dataExtractionRules" not in text:
         # Sicherung: Programme ja, verschlüsselte HA-Kopplung nein.
         text = text.replace("<application", '<application\n        android:dataExtractionRules="@xml/data_extraction_rules"\n        android:fullBackupContent="@xml/backup_rules"', 1)
+    if "localeConfig" not in text:
+        # Eigene App-Sprache wählbar (Android 13+)
+        text = text.replace("<application", '<application\n        android:localeConfig="@xml/locales_config"', 1)
     if "enableOnBackInvokedCallback" not in text:
         # Vorschau-Animation beim Zurückwischen (Android 14+)
         text = text.replace("<application", '<application\n        android:enableOnBackInvokedCallback="true"', 1)
@@ -211,13 +214,20 @@ PLIST_URL = """	<key>CFBundleURLTypes</key>
 """
 
 # Home Assistant im Heimnetz (http, lokale Adressen)
+PLIST_LANG = """	<key>CFBundleLocalizations</key>
+	<array>
+		<string>de</string>
+		<string>en</string>
+	</array>
+"""
+
 PLIST_NET = """	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>wa:sh meldet den Stand von Waschmaschine und Trockner an dein Home Assistant.</string>
+	<string>wa:sh sends the status of washer and dryer to your Home Assistant. · wa:sh meldet den Stand von Waschmaschine und Trockner an dein Home Assistant.</string>
 """
 
 
@@ -227,7 +237,8 @@ def patch_plist(text):
     text = name("CFBundleName", name("CFBundleDisplayName", text))
     for key, block in (("NSSupportsLiveActivities", PLIST_LIVE),
                        ("CFBundleURLTypes", PLIST_URL),
-                       ("NSAppTransportSecurity", PLIST_NET)):
+                       ("NSAppTransportSecurity", PLIST_NET),
+                       ("CFBundleLocalizations", PLIST_LANG)):
         if key not in text:
             i = text.rfind("</dict>")
             text = text[:i] + block + text[i:]

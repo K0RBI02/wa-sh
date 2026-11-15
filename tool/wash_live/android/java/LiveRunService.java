@@ -18,7 +18,6 @@ import android.os.Looper;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +55,15 @@ public class LiveRunService extends Service {
             this.start = start;
             this.end = end;
         }
+    }
+
+    /** Deutsch, wenn System bzw. App-Sprache Deutsch ist – sonst Englisch. */
+    static boolean de() {
+        return "de".equals(Locale.getDefault().getLanguage());
+    }
+
+    static String tr(String de, String en) {
+        return de() ? de : en;
     }
 
     static int idFor(String machine) {
@@ -212,13 +220,13 @@ public class LiveRunService extends Service {
         NotificationManager nm = nm(this);
         nm.deleteNotificationChannel("wash_live"); // alter gemeinsamer Kanal (0.1/0.2)
         for (String m : MACHINES) {
-            String label = "wash".equals(m) ? "Waschmaschine" : "Trockner";
+            String label = "wash".equals(m) ? tr("Waschmaschine", "Washer") : tr("Trockner", "Dryer");
             if (nm.getNotificationChannelGroup(m) == null) {
                 nm.createNotificationChannelGroup(new NotificationChannelGroup(m, label));
             }
             if (nm.getNotificationChannel(channelFor(m)) != null) continue;
-            NotificationChannel ch = new NotificationChannel(channelFor(m), "Läuft gerade", NotificationManager.IMPORTANCE_LOW);
-            ch.setDescription("Dauerhafte Anzeige mit Restzeit und Fortschritt.");
+            NotificationChannel ch = new NotificationChannel(channelFor(m), tr("Läuft gerade", "Running"), NotificationManager.IMPORTANCE_LOW);
+            ch.setDescription(tr("Dauerhafte Anzeige mit Restzeit und Fortschritt.", "Persistent display with time left and progress."));
             ch.setGroup(m);
             ch.setShowBadge(false);
             nm.createNotificationChannel(ch);
@@ -244,12 +252,12 @@ public class LiveRunService extends Service {
         long total = Math.max(1L, r.end - r.start);
         int pct = (int) Math.max(0, Math.min(100, (now - r.start) * 100 / total));
         long minsLeft = Math.max(1L, (r.end - now + 59_999L) / 60_000L);
-        String clock = new SimpleDateFormat("HH:mm", Locale.GERMANY).format(new Date(r.end));
+        String clock = android.text.format.DateFormat.getTimeFormat(this).format(new Date(r.end));
 
         Notification.Builder b = builder(r.machine)
                 .setSmallIcon(R.drawable.ic_stat_wash)
                 .setContentTitle(r.title)
-                .setContentText("Fertig um " + clock + " · " + r.program)
+                .setContentText(tr("Fertig um ", "Done at ") + clock + " · " + r.program)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_PROGRESS)
@@ -258,8 +266,8 @@ public class LiveRunService extends Service {
                 .setUsesChronometer(true)
                 .setProgress(100, pct, false)
                 .setContentIntent(pending(r.machine, null, 0))
-                .addAction(new Notification.Action.Builder((Icon) null, "Schon fertig", pending(r.machine, "finish", 1)).build())
-                .addAction(new Notification.Action.Builder((Icon) null, "Zur Übersicht", pending(r.machine, "overview", 2)).build());
+                .addAction(new Notification.Action.Builder((Icon) null, tr("Schon fertig", "Already done"), pending(r.machine, "finish", 1)).build())
+                .addAction(new Notification.Action.Builder((Icon) null, tr("Zur Übersicht", "Overview"), pending(r.machine, "overview", 2)).build());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) b.setChronometerCountDown(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) b.setTimeoutAfter(r.end - now);

@@ -8,6 +8,7 @@ import 'package:wash_live/wash_live.dart';
 import 'ha.dart';
 import 'models.dart';
 import 'notifications.dart';
+import 'l10n.dart';
 
 /// Hält Programme und laufende Durchgänge. Waschmaschine und Trockner haben
 /// je einen eigenen Slot und laufen völlig unabhängig voneinander.
@@ -158,7 +159,7 @@ class WashStore extends ChangeNotifier {
 
   static Future<void> _showLive(Run r) => WashLive.start(
         machine: r.machine.name,
-        title: r.machine == Machine.wash ? 'Wäsche läuft' : 'Trockner läuft',
+        title: t.machineRunningTitle(r.machine),
         program: r.programName,
         start: r.start,
         end: r.end,

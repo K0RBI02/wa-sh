@@ -1,4 +1,7 @@
+import 'dart:ui' show Locale;
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wash/l10n.dart';
 import 'package:wash/models.dart';
 
 void main() {
@@ -78,6 +81,35 @@ void main() {
     test('Uhrzeit', () {
       expect(formatClock(DateTime(2026, 1, 1, 9, 5)), '09:05');
       expect(formatClock(DateTime(2026, 1, 1, 23, 59)), '23:59');
+    });
+  });
+
+  group('Sprache', () {
+    tearDown(() => t = S.german);
+
+    test('Englisch: Texte, Einheiten und Startprogramme', () {
+      t = S.english;
+      expect(Machine.wash.label, 'Washer');
+      expect(Machine.dry.label, 'Dryer');
+      expect(formatDuration(105), '1:45 h');
+      expect(defaultPrograms[Machine.wash]!.first.name, 'Colours 40°');
+      expect(t.shortcut(Machine.dry, 'Cotton'), 'Dry Cotton');
+      expect(t.nudges, hasLength(5));
+    });
+
+    test('Deutsch: Texte, Einheiten und Startprogramme', () {
+      t = S.german;
+      expect(Machine.wash.label, 'Waschmaschine');
+      expect(formatDuration(105), '1:45 Std');
+      expect(defaultPrograms[Machine.dry]!.last.name, 'Pflegeleicht');
+      expect(t.shortcut(Machine.wash, 'Bunt 40°'), 'Bunt 40° waschen');
+    });
+
+    test('Systemsprache: de → Deutsch, alles andere → Englisch', () {
+      expect(S.forLocale(const Locale('de', 'AT')), same(S.german));
+      expect(S.forLocale(const Locale('en', 'US')), same(S.english));
+      expect(S.forLocale(const Locale('fr')), same(S.english));
+      expect(S.forLocale(null), same(S.english));
     });
   });
 }

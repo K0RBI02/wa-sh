@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
+import '../l10n.dart';
 
 /// Die drei Linien oben (Schritt 1 / 2 / 3). Optional füllt sich das aktive
 /// Segment als Ladebalken.
@@ -14,8 +15,8 @@ class StepBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: progress == null
-          ? 'Schritt ${active + 1} von 3'
-          : 'Schritt ${active + 1} von 3, ${(progress! * 100).round()} Prozent geschafft',
+          ? t.step(active + 1)
+          : t.stepProgress(active + 1, (progress! * 100).round()),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

@@ -52,7 +52,7 @@ again if it's still sitting down there.
 - **Calm by design** – hand-drawn doodles, subtle animations, large type. “Reduce motion” and large system fonts are respected.
 - **Private** – no account, no ads, no trackers. Everything stays on your phone (and, if you like, on your own Home Assistant). → [Privacy](PRIVACY.md)
 
-> The app itself currently speaks German.
+The app speaks **English and German** and follows your phone's language (or the language you pick for wa:sh in the system settings).
 
 ## Home Assistant
 
@@ -62,7 +62,7 @@ and program. Home Assistant knows on its own when the laundry is done, even if
 the phone is switched off.
 
 1. **Install:** HACS → ⋮ → *Custom repositories* → `https://github.com/K0RBI02/wa-sh` (type *Integration*) → download **wa:sh** → restart Home Assistant.
-2. **Pair:** *Settings → Devices & services → Add integration → wa:sh*. Home Assistant shows a code – enter it in the app under *Meine Programme → Home Assistant*. Done.
+2. **Pair:** *Settings → Devices & services → Add integration → wa:sh*. Home Assistant shows a code – enter it in the app under *My programs → Home Assistant*. Done.
 
 No token, no relay server. Example automations and all details:
 [docs/HOME-ASSISTANT.md](docs/HOME-ASSISTANT.md)

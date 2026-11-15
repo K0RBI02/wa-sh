@@ -8,6 +8,7 @@ import '../models.dart';
 import '../store.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../l10n.dart';
 
 /// „Meine Programme“ als Bottom Sheet – zwei Favoriten pro Maschine.
 Future<void> showProgramsSheet(BuildContext context) {
@@ -44,15 +45,15 @@ class _ProgramsSheet extends StatelessWidget {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Semantics(
                       header: true,
-                      child: Text('Meine Programme', style: font(size: 28, weight: FontWeight.w600, height: 1.05, spacing: -0.5)),
+                      child: Text(t.myPrograms, style: font(size: 28, weight: FontWeight.w600, height: 1.05, spacing: -0.5)),
                     ),
                     const SizedBox(height: 2),
-                    Text('Zwei Favoriten pro Maschine', style: font(size: 14, color: C.muted)),
+                    Text(t.twoFavourites, style: font(size: 14, color: C.muted)),
                   ]),
                 ),
                 RoundIcon(
                   icon: Icons.close,
-                  label: 'Schließen',
+                  label: t.close,
                   onTap: () => Navigator.of(context).pop(),
                   background: C.bg,
                   foreground: C.ink,
@@ -87,14 +88,14 @@ class _ProgramsSheet extends StatelessWidget {
               ],
             ],
             const SizedBox(height: 20),
-            Text('Die Programme erscheinen beim Starten direkt zur Auswahl. Für alles andere gibt’s „Eigene Zeit“.',
+            Text(t.programsHint,
                 style: font(size: 14, height: 1.4, color: C.muted)),
             const SizedBox(height: 28),
             const _NotificationsRow(),
             const SizedBox(height: 12),
             const _HomeAssistantCard(),
             const SizedBox(height: 20),
-            PillButton(label: 'Speichern', expand: true, onTap: () => Navigator.of(context).pop()),
+            PillButton(label: t.save, expand: true, onTap: () => Navigator.of(context).pop()),
           ],
         ),
       ),
@@ -139,9 +140,9 @@ class _ProgramCardState extends State<_ProgramCard> {
               maxLength: 18,
               textInputAction: TextInputAction.done,
               style: font(size: 16, weight: FontWeight.w600),
-              onChanged: (v) => _save(p.copyWith(name: v.trim().isEmpty ? 'Programm $n' : v.trim())),
+              onChanged: (v) => _save(p.copyWith(name: v.trim().isEmpty ? t.program(n) : v.trim())),
               decoration: InputDecoration(
-                labelText: 'Programm $n',
+                labelText: t.program(n),
                 labelStyle: font(size: 13, color: C.muted),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 counterText: '',
@@ -155,7 +156,7 @@ class _ProgramCardState extends State<_ProgramCard> {
           const SizedBox(width: 10),
           RoundIcon(
             icon: Icons.remove,
-            label: 'Programm $n: 5 Minuten weniger',
+            label: t.programMinus(n),
             onTap: () => _save(p.copyWith(minutes: (p.minutes - 5).clamp(10, 300))),
             background: C.machine(widget.machine),
             foreground: C.ink,
@@ -168,7 +169,7 @@ class _ProgramCardState extends State<_ProgramCard> {
           ),
           RoundIcon(
             icon: Icons.add,
-            label: 'Programm $n: 5 Minuten mehr',
+            label: t.programPlus(n),
             onTap: () => _save(p.copyWith(minutes: (p.minutes + 5).clamp(10, 300))),
             size: 44,
           ),
@@ -219,8 +220,8 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
     });
   }
 
-  Future<void> _pair() => _run(() => _ha.pair(url: _url.text, code: _code.text), 'Gekoppelt');
-  Future<void> _test() => _run(_ha.test, 'Erreichbar');
+  Future<void> _pair() => _run(() => _ha.pair(url: _url.text, code: _code.text), t.haPaired);
+  Future<void> _test() => _run(_ha.test, t.haReachable);
   Future<void> _unpair() async {
     await _ha.unpair();
     if (mounted) setState(() => _result = null);
@@ -250,7 +251,7 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
           keyboardType: TextInputType.url,
           autocorrect: false,
           style: font(size: 15, weight: FontWeight.w500),
-          decoration: _deco('Adresse', 'http://homeassistant.local:8123'),
+          decoration: _deco(t.haAddress, 'http://homeassistant.local:8123'),
         ),
         const SizedBox(height: 14),
         TextField(
@@ -259,13 +260,13 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
           enableSuggestions: false,
           textCapitalization: TextCapitalization.characters,
           style: font(size: 15, weight: FontWeight.w500).copyWith(fontFeatures: tabular, letterSpacing: 1.5),
-          decoration: _deco('Kopplungscode', 'z. B. K7Q-2M9'),
+          decoration: _deco(t.haCode, t.haCodeHint),
           onSubmitted: (_) => _pair(),
         ),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.centerLeft,
-          child: _busy ? _spinner : PillButton(label: 'Koppeln', height: 46, onTap: _pair),
+          child: _busy ? _spinner : PillButton(label: t.haPair, height: 46, onTap: _pair),
         ),
       ];
 
@@ -274,11 +275,11 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
         const SizedBox(height: 4),
         // Wrap statt Row: bei großer Schrift rutscht „Trennen“ in die nächste Zeile.
         Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-          _busy ? _spinner : PillButton(label: 'Verbindung testen', height: 46, onTap: _test),
+          _busy ? _spinner : PillButton(label: t.haTest, height: 46, onTap: _test),
           TextButton(
             onPressed: _busy ? null : _unpair,
             style: TextButton.styleFrom(foregroundColor: C.ink, minimumSize: const Size(44, 44)),
-            child: Text('Trennen', style: font(size: 15, weight: FontWeight.w600)),
+            child: Text(t.haUnpair, style: font(size: 15, weight: FontWeight.w600)),
           ),
         ]),
       ];
@@ -290,8 +291,8 @@ class _HomeAssistantCardState extends State<_HomeAssistantCard> {
       builder: (context, _) {
         final status = _result ??
             (_ha.paired
-                ? (_ha.lastError ?? 'Gekoppelt mit „${_ha.name}“')
-                : 'Optional: In Home Assistant „Integration hinzufügen → wa:sh“ wählen, dann hier den Code eingeben.');
+                ? (_ha.lastError ?? t.haPairedWith(_ha.name))
+                : t.haIntro);
         final good = _result != null ? _ok : (_ha.paired && _ha.lastError == null);
         final dot = (_ha.paired || _result != null)
             ? Container(
@@ -377,7 +378,7 @@ class _NotificationsRow extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Semantics(
         button: true,
-        label: 'Benachrichtigungen in den Systemeinstellungen öffnen',
+        label: t.notificationsOpen,
         child: InkWell(
           onTap: WashLive.openNotificationSettings,
           child: Padding(
@@ -388,9 +389,9 @@ class _NotificationsRow extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Benachrichtigungen', style: font(size: 18, weight: FontWeight.w600)),
+                    Text(t.notifications, style: font(size: 18, weight: FontWeight.w600)),
                     const SizedBox(height: 2),
-                    Text('Pro Maschine einzeln einstellen', style: font(size: 13, color: C.muted)),
+                    Text(t.notificationsSub, style: font(size: 13, color: C.muted)),
                   ]),
                 ),
                 const Icon(Icons.open_in_new_rounded, size: 20, color: C.ink),

@@ -11,6 +11,7 @@ import '../widgets/doodles.dart';
 import 'machine_flow.dart';
 import 'programs_sheet.dart';
 import 'start_screen.dart';
+import '../l10n.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,16 +26,14 @@ class HomeScreen extends StatelessWidget {
     final anyDone = [wash, dry].whereType<Run>().any((r) => r.isDone(now));
 
     final (headline, sub, footer) = switch ((running, anyDone)) {
-      (_, true) => ('Fertig!\nAbholen.', 'Mindestens eine Maschine ist durch – ab in den Keller.', 'Keine Socke bleibt zurück.'),
-      (2, _) => ('Alles\nläuft.', 'Waschmaschine und Trockner drehen gleichzeitig – wir behalten beide im Blick.',
-          'Zwei Maschinen, null Stress.'),
+      (_, true) => (t.homeDoneTitle, t.homeDoneBody, t.tagSocks),
+      (2, _) => (t.homeBothTitle, t.homeBothBody, t.tagTwo),
       (1, _) => (
-          'Eins\nläuft.',
-          wash != null ? 'Der Trockner ist noch frei – soll er gleich mit?' : 'Die Waschmaschine ist noch frei.',
-          'Keine Socke bleibt zurück.'
+          t.homeOneTitle,
+          t.homeOneBody(wash != null),
+          t.tagSocks
         ),
-      _ => ('Heute\nWaschtag?', 'Gerade läuft nichts. Starte eine Ladung – wir erinnern dich, bevor sie fertig ist.',
-          'Keine Socke bleibt zurück.'),
+      _ => (t.homeIdleTitle, t.homeIdleBody, t.tagSocks),
     };
 
     return Scaffold(
@@ -51,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                   const Spacer(),
                   RoundIcon(
                     icon: Icons.tune,
-                    label: 'Meine Programme',
+                    label: t.myPrograms,
                     onTap: () => showProgramsSheet(context),
                   ),
                 ],
@@ -113,10 +112,10 @@ class _MachineTile extends StatelessWidget {
         child: Semantics(
           button: true,
           label: r == null
-              ? '${machine.label} starten'
+              ? t.startMachine(machine)
               : r.isDone(now)
-                  ? '${machine.label} fertig – abholen'
-                  : '${machine.label} läuft, noch ${r.remaining(now).inMinutes} Minuten',
+                  ? t.machineDoneCollect(machine)
+                  : t.machineRunningFor(machine, r.remaining(now).inMinutes),
           child: ExcludeSemantics(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
@@ -146,7 +145,7 @@ class _Idle extends StatelessWidget {
       children: [
         Text(machine.verb, style: font(size: 26, weight: FontWeight.w600, height: 1, spacing: -0.8)),
         const SizedBox(height: 3),
-        Text('frei', style: font(size: 13, color: C.sub)),
+        Text(t.idle, style: font(size: 13, color: C.sub)),
         Expanded(
           child: Center(
             child: FittedBox(
@@ -163,7 +162,7 @@ class _Idle extends StatelessWidget {
           decoration: const ShapeDecoration(color: C.ink, shape: StadiumBorder()),
           alignment: Alignment.center,
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text('Starten', style: font(size: 15, weight: FontWeight.w600, color: C.white)),
+            Text(t.start, style: font(size: 15, weight: FontWeight.w600, color: C.white)),
             const SizedBox(width: 8),
             const Icon(Icons.add, size: 18, color: C.white),
           ]),
@@ -184,15 +183,15 @@ class _Busy extends StatelessWidget {
     final done = run.isDone(now);
     final rem = run.remaining(now);
     final (big, unit) = done
-        ? ('Fertig', '')
+        ? (t.done, '')
         : rem.inMinutes >= 60
-            ? ('${rem.inHours}:${(rem.inMinutes % 60).toString().padLeft(2, '0')}', 'Std')
-            : ('${math.max(1, rem.inMinutes + (rem.inSeconds % 60 > 0 ? 1 : 0))}', 'Min');
+            ? ('${rem.inHours}:${(rem.inMinutes % 60).toString().padLeft(2, '0')}', t.hoursUnit)
+            : ('${math.max(1, rem.inMinutes + (rem.inSeconds % 60 > 0 ? 1 : 0))}', t.minutesUnit);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Align(alignment: Alignment.centerLeft, child: _Chip(text: done ? 'abholen!' : '${run.machine.shortLabel} läuft')),
+        Align(alignment: Alignment.centerLeft, child: _Chip(text: done ? t.collectExcl : t.runningChip(run.machine))),
         Expanded(
           child: Center(
             child: FittedBox(
@@ -237,7 +236,7 @@ class _Busy extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(children: [
-                TextSpan(text: done ? 'seit ' : 'fertig ', style: font(size: 13, color: C.sub)),
+                TextSpan(text: done ? t.since : t.doneAtLabel, style: font(size: 13, color: C.sub)),
                 TextSpan(text: formatClock(run.end), style: font(size: 13, weight: FontWeight.w600)),
               ]),
               maxLines: 1,

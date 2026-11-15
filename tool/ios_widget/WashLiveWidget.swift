@@ -8,6 +8,11 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
+/// Deutsch, wenn die bevorzugte Sprache Deutsch ist – sonst Englisch.
+func tr(_ de: String, _ en: String) -> String {
+    (Locale.preferredLanguages.first ?? "en").hasPrefix("de") ? de : en
+}
+
 @main
 struct WashLiveBundle: WidgetBundle {
     var body: some Widget {
@@ -96,7 +101,7 @@ private struct LockScreenView: View {
                 EmptyView()
             }
             .tint(ink)
-            Text("Fertig um \(context.state.end, style: .time) · \(context.state.program)")
+            Text("\(tr("Fertig um", "Done at")) \(context.state.end, style: .time) · \(context.state.program)")
                 .font(.subheadline)
                 .foregroundStyle(ink.opacity(0.75))
             ActionRow(machine: m, light: false)
@@ -112,8 +117,8 @@ private struct ActionRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Link(destination: link(machine, "finish")) { pill("Schon fertig") }
-            Link(destination: link(machine, "overview")) { pill("Zur Übersicht") }
+            Link(destination: link(machine, "finish")) { pill(tr("Schon fertig", "Already done")) }
+            Link(destination: link(machine, "overview")) { pill(tr("Zur Übersicht", "Overview")) }
         }
     }
 

@@ -3,6 +3,10 @@
 ## 0.4.0 – unreleased
 
 ### App
+- **English and German**: the app follows the phone's language and switches
+  live – texts, notifications, quick actions and the “running” display. Android 13+
+  and iOS offer a per-app language setting. New installations start with
+  programs in the matching language.
 - New app icon: the laundry basket (also as Android adaptive icon and
   monochrome “themed icon”).
 - Notifications grouped by machine, each category adjustable on its own:

@@ -16,7 +16,7 @@ restart Home Assistant.
 
 1. Home Assistant → *Settings → Devices & services → Add integration* → **wa:sh** → choose a name (e.g. “Laundry room”).
 2. Home Assistant shows the **pairing code** in large type (e.g. `K7Q-2M9`, valid for 10 minutes) and waits.
-   In the app: *Menu → Meine Programme → Home Assistant* → enter address and code → **Koppeln**.
+   In the app: *Menu → My programs → Home Assistant* → enter address and code → **Pair**.
 3. As soon as the phone is paired, the dialog in Home Assistant continues on its own – done.
 
 Pair another phone via **Configure** on the entry. With Nabu Casa the app also gets

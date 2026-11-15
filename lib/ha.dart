@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'l10n.dart';
 import 'models.dart';
 
 /// Verbindung zur Home-Assistant-Integration „wa:sh“ (custom_components/wash).
@@ -91,8 +92,8 @@ class HomeAssistant extends ChangeNotifier {
   Future<String?> pair({required String url, required String code}) async {
     final u = normalizeUrl(url);
     final c = code.trim();
-    if (u.isEmpty) return 'Adresse eintragen';
-    if (c.isEmpty) return 'Code aus Home Assistant eintragen';
+    if (u.isEmpty) return t.haErrNoAddress;
+    if (c.isEmpty) return t.haErrNoCode;
     try {
       final res = await _sendJson('$u/api/wash/pair', {'code': c});
       switch (res.status) {
@@ -100,14 +101,14 @@ class HomeAssistant extends ChangeNotifier {
           break;
         case 404:
           // 404 kommt auch, wenn die Integration gar nicht installiert ist.
-          return res.body is Map ? 'Code ungültig oder abgelaufen' : 'wa:sh-Integration in HA nicht gefunden';
+          return res.body is Map ? t.haErrBadCode : t.haErrNoIntegration;
         case 429:
-          return 'Zu viele Versuche – kurz warten';
+          return t.haErrTooMany;
         default:
-          return 'HA antwortet mit Status ${res.status}';
+          return t.haErrStatus(res.status);
       }
       final body = res.body;
-      if (body is! Map || body['webhook_id'] is! String) return 'Unerwartete Antwort von HA';
+      if (body is! Map || body['webhook_id'] is! String) return t.haErrUnexpected;
       _url = u;
       _name = (body['name'] as String?) ?? 'Home Assistant';
       _webhook = body['webhook_id'] as String;
@@ -125,7 +126,7 @@ class HomeAssistant extends ChangeNotifier {
 
   /// Verbindung prüfen. `null` = erreichbar, sonst Fehlertext.
   Future<String?> test() async {
-    if (!paired) return 'Noch nicht gekoppelt';
+    if (!paired) return t.haErrNotPaired;
     final err = await _post({'type': 'ping'});
     lastError = err;
     if (err == null) lastSuccess = DateTime.now();
@@ -172,13 +173,13 @@ class HomeAssistant extends ChangeNotifier {
   Future<String?> _post(Map<String, Object?> body) async {
     final targets = ['$_url/api/webhook/$_webhook', if (_cloud.isNotEmpty) _cloud];
     String? err;
-    for (final t in targets) {
+    for (final target in targets) {
       try {
-        final res = await _sendJson(t, body);
+        final res = await _sendJson(target, body);
         if (res.status >= 200 && res.status < 300) return null;
         err = res.status == 404 || res.status == 405
-            ? 'Kopplung in HA gelöscht – neu koppeln'
-            : 'HA antwortet mit Status ${res.status}';
+            ? t.haErrRemoved
+            : t.haErrStatus(res.status);
         if (res.status < 500) return err; // kein Netzproblem – Ausweichweg hilft nicht
       } catch (e) {
         err = _describe(e);
@@ -241,10 +242,10 @@ class HomeAssistant extends ChangeNotifier {
   }
 
   static String _describe(Object e) {
-    if (e is SocketException || e is TimeoutException) return 'HA nicht erreichbar';
-    if (e is HandshakeException) return 'Zertifikat-Problem (https)';
-    if (e is FormatException || e is ArgumentError) return 'Adresse ungültig';
-    return 'Fehler: $e';
+    if (e is SocketException || e is TimeoutException) return t.haErrUnreachable;
+    if (e is HandshakeException) return t.haErrCert;
+    if (e is FormatException || e is ArgumentError) return t.haErrBadAddress;
+    return t.haErrOther(e);
   }
 
   @override

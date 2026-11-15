@@ -10,6 +10,7 @@ import '../widgets/common.dart';
 import '../widgets/doodle.dart';
 import '../widgets/doodles.dart';
 import 'machine_flow.dart';
+import '../l10n.dart';
 
 /// Schritt 1: Maschine und Programm wählen (oder eigene Zeit).
 class StartScreen extends StatefulWidget {
@@ -84,18 +85,18 @@ class _StartScreenState extends State<StartScreen> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
-          title: Text('${_machine.label} läuft schon', style: font(size: 20, weight: FontWeight.w600)),
-          content: Text('Der laufende Timer wird ersetzt.', style: font(size: 15, color: C.sub)),
+          title: Text(t.alreadyRunning(_machine), style: font(size: 20, weight: FontWeight.w600)),
+          content: Text(t.replaceTimer, style: font(size: 15, color: C.sub)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Behalten')),
-            TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Neu starten')),
+            TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.keep)),
+            TextButton(onPressed: () => Navigator.pop(c, true), child: Text(t.restart)),
           ],
         ),
       );
       if (ok != true) return;
     }
     final programs = store.programs(_machine);
-    final name = _program == _custom ? 'Eigene Zeit' : programs[_program].name;
+    final name = _program == _custom ? t.customTime : programs[_program].name;
     final minutes = _program == _custom ? _customMin : programs[_program].minutes;
     await store.start(_machine, name, minutes);
     HapticFeedback.mediumImpact();
@@ -117,7 +118,7 @@ class _StartScreenState extends State<StartScreen> {
             children: [
               const StepBar(active: 0),
               const SizedBox(height: 32),
-              Text('Wäsche\nStarten', style: display()),
+              Text(t.startTitle, style: display()),
               Expanded(
                 child: Center(
                   child: FittedBox(
@@ -133,7 +134,7 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
               ),
-              const RichBody('Wähle **dein Programm** oder stell eine eigene Zeit ein – wir behalten sie für dich im Blick.'),
+              RichBody(t.startBody),
               const SizedBox(height: 18),
               _MachineToggle(selected: _machine, onPick: _pickMachine),
               const SizedBox(height: 10),
@@ -153,9 +154,9 @@ class _StartScreenState extends State<StartScreen> {
               const SizedBox(height: 28),
               Row(
                 children: [
-                  PillButton(label: 'Timer starten', onTap: _start),
+                  PillButton(label: t.startTimer, onTap: _start),
                   const SizedBox(width: 16),
-                  SideLink(question: 'Doch nicht?', action: 'Zurück', onTap: () => Navigator.of(context).maybePop()),
+                  SideLink(question: t.changedMind, action: t.back, onTap: () => Navigator.of(context).maybePop()),
                 ],
               ),
             ],
@@ -291,8 +292,8 @@ class _ProgramRow extends StatelessWidget {
                   return _CustomEditor(minutes: customMin, onStep: onStep, onDone: onDone);
                 }
                 return _ProgramLabel(
-                  title: 'Eigene',
-                  sub: selected == _custom ? formatDuration(customMin) : 'Zeit wählen',
+                  title: t.custom,
+                  sub: selected == _custom ? formatDuration(customMin) : t.pickTime,
                   bold: selected == _custom,
                   onTap: onCustom,
                 );
@@ -382,21 +383,21 @@ class _CustomEditor extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         children: [
-          RoundIcon(icon: Icons.remove, label: '15 Minuten weniger', onTap: () => onStep(-15),
+          RoundIcon(icon: Icons.remove, label: t.minus15, onTap: () => onStep(-15),
               background: C.pink, foreground: C.ink, size: 40),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(formatDuration(minutes), style: font(size: 18, weight: FontWeight.w600, features: tabular)),
-                Text('Eigene Zeit', style: font(size: 11, color: C.sub)),
+                Text(t.customTime, style: font(size: 11, color: C.sub)),
               ],
             ),
           ),
-          RoundIcon(icon: Icons.add, label: '15 Minuten mehr', onTap: () => onStep(15),
+          RoundIcon(icon: Icons.add, label: t.plus15, onTap: () => onStep(15),
               background: C.pink, foreground: C.ink, size: 40),
           const SizedBox(width: 6),
-          RoundIcon(icon: Icons.check, label: 'Zeit übernehmen', onTap: onDone, size: 40),
+          RoundIcon(icon: Icons.check, label: t.applyTime, onTap: onDone, size: 40),
         ],
       ),
     );

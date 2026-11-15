@@ -58,7 +58,7 @@ UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterD
 ```
 
 Newer Flutter templates use a `SceneDelegate`. If the Live Activity buttons
-(“Schon fertig”, “Zur Übersicht”) don't reach the app, the scene delegate has to
+(“Already done”, “Overview”) don't reach the app, the scene delegate has to
 forward the `wash://` links – tapping the Live Activity itself always opens the app.
 
 ## Notifications
@@ -68,10 +68,10 @@ adjusted on its own (sound, vibration, Do Not Disturb):
 
 | Washer / Dryer | When | Default |
 |---|---|---|
-| Läuft gerade (running) | persistent, with time left and progress | silent |
-| Gleich fertig (almost done) | 10 minutes before the end | normal |
-| Fertig (done) | at the end | high |
-| Nachhaken (nudges) | “remind me again”, “not collected yet?” | normal |
+| Running | persistent, with time left and progress | silent |
+| Almost done | 10 minutes before the end | normal |
+| Done | at the end | high |
+| Nudges | “remind me again”, “not collected yet?” | normal |
 
 Channel IDs: `<machine>_running`, `<machine>_soon`, `<machine>_done`, `<machine>_nudge`
 with `<machine>` = `wash` | `dry`, in the channel groups `wash` and `dry`.
@@ -144,7 +144,8 @@ lib/
   screens/home_screen.dart  home with one tile per machine
   screens/start_screen.dart step 1
   screens/machine_flow.dart steps 2 and 3
-  screens/programs_sheet.dart “Meine Programme” (settings)
+  screens/programs_sheet.dart “My programs” (settings)
+  l10n.dart                 all texts, German and English
 packages/wash_live/          (generated) native plugin for the “running” display
 tool/wash_live/              its sources: android/ (Java), ios/ (Swift), lib/
 tool/ios_widget/             iOS widget extension (Live Activity, Dynamic Island)
@@ -155,6 +156,13 @@ docs/                        these docs; README images in docs/img (from tool/do
 ```
 
 The README images are generated from the app's doodles: `python3 tool/doodles_to_svg.py`.
+
+## Languages
+
+All texts live in `lib/l10n.dart` (German and English, no code generator – texts are
+also needed outside widgets, e.g. for notifications and quick actions). The app follows
+the system language and switches live; Android 13+ and iOS also offer a per-app
+language setting. The native “running” display (Java/Swift) picks the language itself.
 
 ## Accessibility
 

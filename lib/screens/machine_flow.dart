@@ -8,6 +8,7 @@ import '../widgets/common.dart';
 import '../widgets/doodle.dart';
 import '../widgets/doodles.dart';
 import 'start_screen.dart';
+import '../l10n.dart';
 
 /// Schritt 2 (läuft) und Schritt 3 (abholen) für eine Maschine.
 /// Wechselt von selbst, sobald die Zeit um ist.
@@ -78,7 +79,7 @@ class _RunningView extends StatelessWidget {
       children: [
         StepBar(active: 1, progress: run.progress(now)),
         const SizedBox(height: 32),
-        Text('Ruhig\nBleiben', style: display()),
+        Text(t.relaxTitle, style: display()),
         Expanded(
           child: Center(
             child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(machineRunning(C.green), width: 280)),
@@ -91,22 +92,19 @@ class _RunningView extends StatelessWidget {
             Text(_countdown(), style: font(size: 52, weight: FontWeight.w600, height: 1, spacing: -1.5, features: tabular)),
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
-              child: Text('fertig um ${formatClock(run.end)}', style: font(size: 15, color: C.sub)),
+              child: Text(t.finishesAt(formatClock(run.end)), style: font(size: 15, color: C.sub)),
             ),
           ],
         ),
         const SizedBox(height: 6),
         Text('${m.label} · ${run.programName}', style: font(size: 14, color: C.sub)),
         const SizedBox(height: 14),
-        RichBody(
-          '${m == Machine.wash ? 'Deine Wäsche dreht ihre Runden' : 'Der Trockner pustet fleißig'}. '
-          'Wir **erinnern dich ${reminderLead.inMinutes} Minuten vorher** – du musst nicht in den Keller schauen.',
-        ),
+        RichBody(t.runningBody(m, reminderLead.inMinutes)),
         const SizedBox(height: 28),
         Row(
           children: [
             PillButton(
-              label: 'Zur Übersicht',
+              label: t.toOverview,
               onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
             ),
             const SizedBox(width: 20),
@@ -118,7 +116,7 @@ class _RunningView extends StatelessWidget {
               radius: 12,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                child: Text('Schon fertig', style: font(size: 15, weight: FontWeight.w600)),
+                child: Text(t.alreadyDone, style: font(size: 15, weight: FontWeight.w600)),
               ),
             ),
           ],
@@ -143,9 +141,9 @@ class _DoneViewState extends State<_DoneView> {
 
   String _since() {
     final d = widget.now.difference(widget.run.end);
-    if (d.inMinutes < 1) return 'gerade eben';
-    if (d.inHours < 1) return 'seit ${d.inMinutes} Min';
-    return 'seit ${d.inHours} Std ${d.inMinutes % 60} Min';
+    if (d.inMinutes < 1) return t.justNow;
+    if (d.inHours < 1) return t.sinceMinutes(d.inMinutes);
+    return t.sinceHours(d.inHours, d.inMinutes % 60);
   }
 
   @override
@@ -159,16 +157,13 @@ class _DoneViewState extends State<_DoneView> {
       children: [
         const StepBar(active: 2),
         const SizedBox(height: 32),
-        Text('Ab in den\nKeller', style: display()),
+        Text(t.basementTitle, style: display()),
         Expanded(
           child: Center(
             child: FittedBox(fit: BoxFit.scaleDown, child: Doodle(laundryDone(C.peach), width: 280)),
           ),
         ),
-        RichBody(
-          '${m == Machine.wash ? 'Deine Wäsche' : 'Der Trockner'} ist **fertig**. '
-          'Hol sie raus, bevor sich der Nachbar deine Lieblingssocken ausleiht.',
-        ),
+        RichBody(t.doneBody(m)),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -176,7 +171,7 @@ class _DoneViewState extends State<_DoneView> {
           child: Row(children: [
             const Icon(Icons.alarm, size: 22, color: C.ink),
             const SizedBox(width: 12),
-            Text('Fertig ', style: font(size: 14, color: C.sub)),
+            Text(t.doneSpace, style: font(size: 14, color: C.sub)),
             Text(_since(), style: font(size: 14, weight: FontWeight.w600)),
           ]),
         ),
@@ -202,8 +197,8 @@ class _DoneViewState extends State<_DoneView> {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Weiter in den Trockner', style: font(size: 15, weight: FontWeight.w600)),
-                      Text('Trockner-Timer gleich mitstarten', style: font(size: 13, color: C.sub)),
+                      Text(t.onToDryer, style: font(size: 15, weight: FontWeight.w600)),
+                      Text(t.onToDryerSub, style: font(size: 13, color: C.sub)),
                     ]),
                   ),
                   const Icon(Icons.arrow_forward, size: 20, color: C.ink),
@@ -216,7 +211,7 @@ class _DoneViewState extends State<_DoneView> {
         Row(
           children: [
             PillButton(
-              label: 'Abgeholt',
+              label: t.collected,
               onTap: () {
                 HapticFeedback.mediumImpact();
                 store.collect(m);
@@ -225,8 +220,8 @@ class _DoneViewState extends State<_DoneView> {
             const SizedBox(width: 16),
             Flexible(
               child: SideLink(
-                question: 'Gerade keine Zeit?',
-                action: _snoozed ? 'Erinnere dich in 5 Min' : 'In 5 Min erinnern',
+                question: t.noTime,
+                action: _snoozed ? t.willRemind5 : t.remind5,
                 onTap: () {
                   store.snooze(m);
                   setState(() => _snoozed = true);

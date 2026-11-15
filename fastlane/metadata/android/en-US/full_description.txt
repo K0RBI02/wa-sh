@@ -13,4 +13,4 @@ In apartment buildings the washer and dryer usually live in the basement – and
 • Optional: Home Assistant integration
 • No ads, no account, no trackers
 
-The app is currently available in German.
+Available in English and German.

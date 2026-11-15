@@ -1,3 +1,1 @@
-• New app icon: the laundry basket
-• Notifications per machine, adjustable by category
-• Backups exclude Home Assistant pairing data
+• The app now speaks English and German

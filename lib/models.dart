@@ -1,9 +1,11 @@
+import 'l10n.dart';
+
 enum Machine { wash, dry }
 
 extension MachineX on Machine {
-  String get label => this == Machine.wash ? 'Waschmaschine' : 'Trockner';
-  String get shortLabel => this == Machine.wash ? 'Wäsche' : 'Trockner';
-  String get verb => this == Machine.wash ? 'Waschen' : 'Trocknen';
+  String get label => t.machine(this);
+  String get shortLabel => t.machineShort(this);
+  String get verb => t.verb(this);
   int get notificationBase => this == Machine.wash ? 100 : 200;
 }
 
@@ -61,10 +63,8 @@ class Run {
       );
 }
 
-const defaultPrograms = <Machine, List<Program>>{
-  Machine.wash: [Program('Bunt 40°', 105), Program('Handtücher 60°', 130)],
-  Machine.dry: [Program('Baumwolle', 100), Program('Pflegeleicht', 60)],
-};
+/// Startprogramme für neue Installationen – in der Sprache des Geräts.
+Map<Machine, List<Program>> get defaultPrograms => {for (final m in Machine.values) m: t.defaultPrograms(m)};
 
 /// Wie viele Minuten vor Ende erinnert wird.
 const reminderLead = Duration(minutes: 10);
@@ -72,8 +72,8 @@ const reminderLead = Duration(minutes: 10);
 String formatDuration(int minutes) {
   final h = minutes ~/ 60;
   final m = minutes % 60;
-  return '$h:${m.toString().padLeft(2, '0')} Std';
+  return '$h:${m.toString().padLeft(2, '0')} ${t.hoursUnit}';
 }
 
-String formatClock(DateTime t) =>
-    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+String formatClock(DateTime time) =>
+    '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';

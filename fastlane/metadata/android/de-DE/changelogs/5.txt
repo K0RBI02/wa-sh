@@ -1,3 +1,1 @@
-• Neues App-Icon: der Wäschekorb
-• Benachrichtigungen pro Maschine in Kategorien einstellbar
-• Sicherung ohne Home-Assistant-Kopplungsdaten
+• Die App spricht jetzt Deutsch und Englisch

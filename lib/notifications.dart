@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import 'l10n.dart';
 import 'models.dart';
 
 /// Plant die Erinnerungen für Waschmaschine und Trockner – unabhängig
@@ -35,16 +36,20 @@ class Notifier {
   ///   · Gleich fertig      (10 Min. vorher)
   ///   · Fertig             (wichtig, mit Ton)
   ///   · Nachhaken          („nochmal erinnern“, „noch nicht abgeholt?“)
-  static const _kinds = <_Kind, (String, String, Importance)>{
-    _Kind.soon: ('Gleich fertig', '10 Minuten vor Ende – Zeit, sich auf den Weg zu machen.', Importance.defaultImportance),
-    _Kind.done: ('Fertig', 'Wenn die Maschine fertig ist.', Importance.high),
-    _Kind.nudge: ('Nachhaken', '„Nochmal erinnern“ und „Noch nicht abgeholt?“.', Importance.defaultImportance),
-  };
+  static Map<_Kind, (String, String, Importance)> get _kinds => {
+        _Kind.soon: (t.chSoon, t.chSoonDesc, Importance.defaultImportance),
+        _Kind.done: (t.chDone, t.chDoneDesc, Importance.high),
+        _Kind.nudge: (t.chNudge, t.chNudgeDesc, Importance.defaultImportance),
+      };
 
   static String _channelId(Machine m, _Kind k) => '${m.name}_${k.name}';
 
   /// Alte Kanäle aus Version 0.1/0.2 – werden beim Start entfernt.
   static const _legacyChannels = ['wash_reminders', 'wash_live'];
+
+  /// Legt die Kanäle an – und benennt sie nach einem Sprachwechsel um
+  /// (Android übernimmt neue Namen für bestehende Kanäle).
+  Future<void> refreshChannels() => _createChannels();
 
   Future<void> _createChannels() async {
     final android = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -54,14 +59,14 @@ class Notifier {
         AndroidNotificationChannelGroup(
           m.name,
           m.label,
-          description: m == Machine.wash ? 'Alles rund um die Waschmaschine.' : 'Alles rund um den Trockner.',
+          description: t.groupDesc(m),
         ),
       );
       // „Läuft gerade“ legt das Plugin an – hier nur vorab, damit die Liste vollständig ist.
       await android.createNotificationChannel(AndroidNotificationChannel(
         '${m.name}_running',
-        'Läuft gerade',
-        description: 'Dauerhafte Anzeige mit Restzeit und Fortschritt.',
+        t.chRunning,
+        description: t.chRunningDesc,
         groupId: m.name,
         importance: Importance.low,
         playSound: false,
@@ -175,8 +180,8 @@ class Notifier {
       await _at(
         run.machine.notificationBase,
         soon,
-        'Gleich fertig',
-        '${run.machine.label}: noch ${reminderLead.inMinutes} Minuten – mach dich langsam auf in den Keller.',
+        t.soonTitle,
+        t.soonBody(run.machine, reminderLead.inMinutes),
         run.machine,
         _Kind.soon,
       );
@@ -185,8 +190,8 @@ class Notifier {
       await _at(
         run.machine.notificationBase + 1,
         run.end,
-        run.machine == Machine.wash ? 'Wäsche ist fertig' : 'Trockner ist fertig',
-        'Ab in den Keller – bevor sich der Nachbar deine Lieblingssocken ausleiht.',
+        t.doneTitle(run.machine),
+        t.doneNotifBody,
         run.machine,
         _Kind.done,
       );
@@ -197,30 +202,21 @@ class Notifier {
       await _at(
         run.machine.notificationBase + 4,
         nudge,
-        'Noch nicht abgeholt?',
-        '${run.machine.label}: ${_nudges[run.end.minute % _nudges.length]}',
+        t.nudgeTitle,
+        '${run.machine.label}: ${t.nudges[run.end.minute % t.nudges.length]}',
         run.machine,
         _Kind.nudge,
       );
     }
   }
 
-  /// Sprüche für „noch nicht abgeholt“ – wechseln, damit es nicht nervt.
-  static const _nudges = [
-    'Deine Socken fühlen sich langsam einsam.',
-    'Der Keller hat angerufen: Deine Wäsche wartet.',
-    'Die Nachbarn schielen schon auf die Maschine.',
-    'Frisch gewaschen bleibt nur frisch, wenn sie rauskommt.',
-    'Kurzer Ausflug in den Keller? Deine Wäsche freut sich.',
-  ];
-
   Future<void> snooze(Machine machine, Duration delay) async {
     if (!_ready) return;
     await _at(
       machine.notificationBase + 2,
       DateTime.now().add(delay),
-      'Noch da unten?',
-      '${machine.label}: Deine Wäsche wartet noch auf dich.',
+      t.snoozeTitle,
+      t.snoozeBody(machine),
       machine,
       _Kind.nudge,
     );
@@ -236,13 +232,13 @@ class Notifier {
   Future<void> _at(int id, DateTime when, String title, String body, Machine machine, _Kind kind) async {
     // Einmalige Erinnerungen brauchen nur den absoluten Zeitpunkt – in UTC
     // geplant, ist die Zeitzone des Geräts egal.
-    final t = tz.TZDateTime.from(when.toUtc(), tz.UTC);
+    final at = tz.TZDateTime.from(when.toUtc(), tz.UTC);
     try {
       await _plugin.zonedSchedule(
         id: id,
         title: title,
         body: body,
-        scheduledDate: t,
+        scheduledDate: at,
         notificationDetails: _details(machine, kind),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: machine.name,
@@ -254,7 +250,7 @@ class Notifier {
         id: id,
         title: title,
         body: body,
-        scheduledDate: t,
+        scheduledDate: at,
         notificationDetails: _details(machine, kind),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         payload: machine.name,

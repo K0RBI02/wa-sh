@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:wash_live/wash_live.dart';
 
 import 'ha.dart';
+import 'l10n.dart';
 import 'models.dart';
 import 'notifications.dart';
 import 'screens/home_screen.dart';
@@ -16,6 +18,7 @@ final messengerKey = GlobalKey<ScaffoldMessengerState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  t = S.fromSystem();
   await Notifier.instance.init();
   await HomeAssistant.load();
   final store = await WashStore.load();
@@ -40,7 +43,7 @@ Future<void> main() async {
 
   final shortcuts = _Shortcuts(store);
 
-  runApp(StoreScope(store: store, child: const WashApp()));
+  runApp(StoreScope(store: store, child: WashApp(onLocaleChanged: shortcuts.sync)));
   WidgetsBinding.instance.addPostFrameCallback((_) {
     Notifier.instance.consumeLaunch();
     WashLive.consumeLaunch();
@@ -59,18 +62,18 @@ class _Shortcuts {
 
   void init() {
     _qa.initialize(_handle);
-    _sync();
-    store.addListener(_sync);
+    sync();
+    store.addListener(sync);
   }
 
-  void _sync() {
+  /// Kurzbefehle neu setzen (Programme oder Sprache geändert).
+  void sync() {
     final items = <ShortcutItem>[
       for (final m in Machine.values)
         for (var i = 0; i < 2; i++)
           ShortcutItem(
             type: 'start:${m.name}:$i',
-            localizedTitle:
-                '${store.programs(m)[i].name} ${m == Machine.wash ? 'waschen' : 'trocknen'}',
+            localizedTitle: t.shortcut(m, store.programs(m)[i].name),
             icon: m == Machine.wash ? 'ic_shortcut_wash' : 'ic_shortcut_dry',
           ),
     ];
@@ -103,14 +106,45 @@ class _Shortcuts {
       behavior: SnackBarBehavior.floating,
       backgroundColor: C.ink,
       shape: const StadiumBorder(),
-      content: Text('${p.name} läuft – fertig um ${formatClock(run.end)}',
+      content: Text(t.startedSnack(p.name, formatClock(run.end)),
           style: font(size: 15, weight: FontWeight.w600, color: C.white)),
     ));
   }
 }
 
-class WashApp extends StatelessWidget {
-  const WashApp({super.key});
+class WashApp extends StatefulWidget {
+  const WashApp({super.key, this.onLocaleChanged});
+
+  /// Für alles außerhalb der Widgets, das die Sprache kennt (Schnellstart).
+  final VoidCallback? onLocaleChanged;
+
+  @override
+  State<WashApp> createState() => _WashAppState();
+}
+
+/// Folgt der Sprache des Systems (bzw. der für die App gewählten Sprache) –
+/// auch wenn sie sich ändert, während die App läuft.
+class _WashAppState extends State<WashApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    final next = S.forLocale(locales?.firstOrNull);
+    if (identical(next, t)) return;
+    setState(() => t = next);
+    Notifier.instance.refreshChannels();
+    widget.onLocaleChanged?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +156,9 @@ class WashApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         scaffoldMessengerKey: messengerKey,
         theme: buildTheme(),
+        locale: Locale(t.code),
+        supportedLocales: S.supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         // Große Schrift wird unterstützt, aber begrenzt – die großen
         // Überschriften und Kacheln bleiben so lesbar statt überzulaufen.
         builder: (context, child) {
