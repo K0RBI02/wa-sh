@@ -70,7 +70,12 @@ jobs:
             echo "No signing key stored – release is signed with the debug key."
             exit 0
           fi
+          # Missing values: alias “wash” (as in the docs), key password = keystore password.
+          KEY_ALIAS="${KEY_ALIAS:-wash}"
+          KEY_PASSWORD="${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
           echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          echo "Keys in keystore:"
+          keytool -list -keystore android/app/upload-keystore.jks -storepass "$KEYSTORE_PASSWORD" | grep -i "entry" || echo "  (keystore password wrong?)"
           cat > android/key.properties <<PROPS
           storePassword=$KEYSTORE_PASSWORD
           keyPassword=$KEY_PASSWORD
