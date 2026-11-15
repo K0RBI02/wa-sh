@@ -1,13 +1,5 @@
 {
   "entity": {
-    "binary_sensor": {
-      "running": {
-        "default": "mdi:play-circle-outline",
-        "state": {
-          "off": "mdi:stop-circle-outline"
-        }
-      }
-    },
     "sensor": {
       "finish": {
         "default": "mdi:timer-check-outline"

@@ -86,6 +86,8 @@ async def test_drei_schritte_und_kopplung(hass: HomeAssistant, client) -> None:
     for m in ("wash", "dry"):
         assert hass.states.get(_entity(hass, entry, m, "status")).state == "idle"
         assert hass.states.get(_entity(hass, entry, m, "running", "binary_sensor")).state == "off"
+    assert hass.states.get(_entity(hass, entry, "wash", "running", "binary_sensor")).attributes["icon"] == "mdi:washing-machine-off"
+    assert hass.states.get(_entity(hass, entry, "dry", "status")).attributes["icon"] == "mdi:tumble-dryer-off"
 
     # Code nur einmal gültig
     assert (await client.post("/api/wash/pair", json={"code": code})).status == 404

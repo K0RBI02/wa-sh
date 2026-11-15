@@ -32,3 +32,9 @@ class WashRunning(WashEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         return self.state_data.effective(dt_util.utcnow()) == STATE_RUNNING
+
+    @property
+    def icon(self) -> str:
+        """Waschmaschine bzw. Trockner – durchgestrichen, wenn aus."""
+        base = "mdi:washing-machine" if self.machine == "wash" else "mdi:tumble-dryer"
+        return base if self.is_on else f"{base}-off"
