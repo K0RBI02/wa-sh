@@ -61,7 +61,8 @@ void main() {
     expect(await ha.pair(url: 'ha.local:8123', code: 'k7q-2m9'), isNull);
     expect(ha.paired, isTrue);
     expect(ha.name, 'Waschküche');
-    expect(fake.calls.first, ('http://ha.local:8123/api/wash/pair', {'code': 'k7q-2m9'}));
+    expect(fake.calls.first.$1, 'http://ha.local:8123/api/wash/pair');
+    expect(fake.calls.first.$2, {'code': 'k7q-2m9'});
 
     await ha.report(Machine.wash, run);
     expect(fake.calls.last.$1, 'http://ha.local:8123/api/webhook/abc123');
