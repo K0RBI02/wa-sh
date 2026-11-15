@@ -20,10 +20,10 @@ Future<void> showProgramsSheet(BuildContext context) {
     backgroundColor: C.white,
     barrierColor: C.dark ? Colors.black.withAlpha(150) : C.ink.withAlpha(115),
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+    // Auf- und Zugehen gleich schnell.
     sheetAnimationStyle: AnimationStyle(
-      duration: const Duration(milliseconds: 380),
+      duration: const Duration(milliseconds: 260),
       reverseDuration: const Duration(milliseconds: 260),
-      curve: easeOut,
     ),
     builder: (_) => const _ProgramsSheet(),
   );
