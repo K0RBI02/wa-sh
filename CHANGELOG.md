@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.2 – unreleased
+## 0.5.2 – 2026-11-17
 
 ### App
 - App icon and Home Assistant icon: just the laundry basket on white (Home

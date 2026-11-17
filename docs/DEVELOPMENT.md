@@ -128,13 +128,11 @@ For CI, add under *Settings → Secrets and variables → Actions*:
 `KEY_PASSWORD`. Without secrets CI signs with the debug key.
 
 **Publish a version:** bump `version:` in `pubspec.yaml` (and `version` in
-`custom_components/wash/manifest.json`), update `CHANGELOG.md`, then
-
-```bash
-git tag v0.4.0 && git push --tags
-```
-
-CI builds the APK and attaches it to a GitHub release; HACS shows the tag as the version.
+`custom_components/wash/manifest.json`) and add a dated section to `CHANGELOG.md`
+(`## 0.6.0 – 2026-12-01`). While it says `– unreleased`, nothing happens; once the
+date is in and the change reaches `main`, CI builds the signed APK, creates the tag
+and the GitHub release with that changelog section. HACS shows the tag as the version.
+Pushing a tag `v*` by hand works too.
 
 ### F-Droid
 

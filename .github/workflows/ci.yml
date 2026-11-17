@@ -91,15 +91,39 @@ jobs:
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/+.*//')
           mv build/app/outputs/flutter-apk/app-release.apk "build/wa-sh-$VERSION.apk"
           echo "APK=build/wa-sh-$VERSION.apk" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
         with:
           name: wa-sh-apk
           path: ${{ env.APK }}
 
-      - name: Release (on tag v*)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.APK }}
-          body_path: CHANGELOG.md
+      # Release automatically when the version in pubspec.yaml has a dated
+      # changelog entry (not “unreleased”) and no release exists yet.
+      # Pushing a tag v* by hand still works as well.
+      - name: Release notes
+        if: github.event_name == 'push'
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## " v " " { on=1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > release-notes.md
+          if grep -q "^## $VERSION – unreleased" CHANGELOG.md || ! grep -q "^## $VERSION " CHANGELOG.md; then
+            echo "RELEASE=no" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE=yes" >> "$GITHUB_ENV"
+          fi
+
+      - name: Release
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main' && env.RELEASE == 'yes'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG exists – uploading the APK again."
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "wa:sh $VERSION" --notes-file release-notes.md
+          fi
