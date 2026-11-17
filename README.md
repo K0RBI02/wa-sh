@@ -96,4 +96,4 @@ What changed is in the [changelog](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE) · Font: [Instrument Sans](assets/fonts/OFL.txt) (SIL Open Font License)
+[APACHE](LICENSE) · Font: [Instrument Sans](assets/fonts/OFL.txt) (SIL Open Font License)
