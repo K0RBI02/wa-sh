@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 – unreleased
+
+### App
+- Material widgets from the standalone `material_ui` package (Flutter 3.47+).
+
 ## 0.5.2 – 2026-11-17
 
 ### App
