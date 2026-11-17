@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 – unreleased
+## 0.6.0 – 2026-11-17
 
 ### App
 - Home screen widget (Android): washer and dryer side by side with a live
