@@ -15,5 +15,17 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Restzeit-Anzeige für Waschmaschine und Trockner" />
         </service>
+        <!-- Widget für den Startbildschirm -->
+        <receiver
+            android:name="de.k0rbi02.wash_live.WashWidget"
+            android:exported="false"
+            android:label="wa:sh">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wash_widget_info" />
+        </receiver>
     </application>
 </manifest>

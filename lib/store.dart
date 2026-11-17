@@ -50,6 +50,9 @@ class WashStore extends ChangeNotifier {
       ha.report(m, r, changed: s._changedAt(m));
     }
     ha.sync();
+    for (final m in Machine.values) {
+      s._widget(m);
+    }
     // Native „läuft“-Anzeige nach einem Neustart wieder herstellen.
     for (final r in s._runs.values) {
       if (!r.isDone(DateTime.now())) _showLive(r);
@@ -134,6 +137,7 @@ class WashStore extends ChangeNotifier {
     final run = Run(machine: m, programName: programName, start: now, end: now.add(Duration(minutes: minutes)));
     _runs[m] = run;
     _changed[m] = now;
+    _widget(m);
     notifyListeners();
     await _save();
     await Notifier.instance.requestPermissions();
@@ -156,6 +160,7 @@ class WashStore extends ChangeNotifier {
       end: now,
     );
     _changed[m] = now;
+    _widget(m);
     notifyListeners();
     await _save();
     _doneReported.add(m);
@@ -177,6 +182,7 @@ class WashStore extends ChangeNotifier {
     _runs.remove(m);
     _doneReported.remove(m);
     if (report) _changed[m] = DateTime.now();
+    _widget(m);
     notifyListeners();
     if (report) HomeAssistant.instance.report(m, null, changed: _changed[m]);
     await _save();
@@ -220,6 +226,7 @@ class WashStore extends ChangeNotifier {
       }
       final run = Run(machine: m, programName: r.program ?? t.customTime, start: r.start!, end: r.end!);
       _runs[m] = run;
+      _widget(m);
       final done = run.isDone(DateTime.now());
       if (done) {
         _doneReported.add(m);
@@ -235,6 +242,18 @@ class WashStore extends ChangeNotifier {
         await _showLive(run);
       }
     }
+  }
+
+  /// Widget auf dem Startbildschirm (Android) auf den Stand bringen.
+  void _widget(Machine m) {
+    final r = _runs[m];
+    WashLive.updateWidget(
+      machine: m.name,
+      state: r == null ? 'idle' : (r.isDone(DateTime.now()) ? 'finished' : 'running'),
+      program: r?.programName,
+      start: r?.start,
+      end: r?.end,
+    );
   }
 
   static Future<void> _showLive(Run r) => WashLive.start(

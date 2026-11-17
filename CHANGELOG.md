@@ -3,6 +3,9 @@
 ## 0.6.0 – unreleased
 
 ### App
+- Home screen widget (Android): washer and dryer side by side with a live
+  countdown, “done at” and progress; tap a free machine to start program 1,
+  otherwise it opens the app at that machine.
 - Material widgets from the standalone `material_ui` package (Flutter 3.47+).
 
 ## 0.5.2 – 2026-11-17

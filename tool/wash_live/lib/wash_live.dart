@@ -66,6 +66,29 @@ class WashLive {
     }
   }
 
+  /// Stand einer Maschine fürs Widget auf dem Startbildschirm (Android).
+  /// [state]: `idle`, `running` oder `finished`.
+  static Future<void> updateWidget({
+    required String machine,
+    required String state,
+    String? program,
+    DateTime? start,
+    DateTime? end,
+  }) async {
+    if (!_supported || !Platform.isAndroid) return;
+    try {
+      await _channel.invokeMethod<void>('widget', {
+        'machine': machine,
+        'state': state,
+        'program': program,
+        'start': start?.millisecondsSinceEpoch ?? 0,
+        'end': end?.millisecondsSinceEpoch ?? 0,
+      });
+    } catch (e) {
+      debugPrint('WashLive: $e');
+    }
+  }
+
   /// Öffnet die Benachrichtigungs-Einstellungen der App im System.
   static Future<void> openNotificationSettings() async {
     if (!_supported) return;

@@ -75,7 +75,7 @@ def setup_plugin():
     for f in (TOOL / "wash_live/android/java").glob("*.java"):
         copy(f, java / f.name, f"Android: {f.name}")
     copy(TOOL / "wash_live/android/AndroidManifest.xml", main / "AndroidManifest.xml", "Android: Manifest")
-    for sub in ("drawable", "raw"):
+    for sub in ("drawable", "raw", "layout", "xml", "values", "values-de"):
         for f in (TOOL / "wash_live/android/res" / sub).glob("*.xml"):
             copy(f, main / "res" / sub / f.name, f"Android: {sub}/{f.name}")
 
