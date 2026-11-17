@@ -15,6 +15,8 @@
 <p align="center">
   <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/ci.yml/badge.svg" alt="App CI"></a>
   <a href="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml"><img src="https://github.com/K0RBI02/wa-sh/actions/workflows/integration.yml/badge.svg" alt="Home Assistant CI"></a>
+  <a href="https://github.com/K0RBI02/wa-sh/releases/latest"><img src="https://img.shields.io/github/v/release/K0RBI02/wa-sh?color=212529&label=release" alt="Latest release"></a>
+  <a href="https://hacs.xyz"><img src="https://img.shields.io/badge/HACS-custom-212529" alt="HACS: custom repository"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-212529" alt="License: MIT"></a>
 </p>
 
@@ -89,7 +91,7 @@ Everything else – iOS setup, tests, releases, code layout – is in
 
 ## Contributing
 
-Ideas, bugs, wishes: please open an [issue](https://github.com/K0RBI02/wa-sh/issues).
+Ideas, bugs, wishes: please open an [issue](https://github.com/K0RBI02/wa-sh/issues/new/choose) – see [CONTRIBUTING.md](CONTRIBUTING.md).
 What changed is in the [changelog](CHANGELOG.md).
 
 ## License

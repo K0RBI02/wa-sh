@@ -1,0 +1,14 @@
+name: Idea
+description: Suggest something that would make laundry day easier.
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why – what situation does it help with?

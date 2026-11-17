@@ -1,0 +1,41 @@
+name: Bug report
+description: Something in the app or the Home Assistant integration doesn't work as expected.
+labels: [bug]
+body:
+  - type: dropdown
+    id: part
+    attributes:
+      label: Where?
+      options:
+        - App (Android)
+        - App (iOS)
+        - Home Assistant integration
+        - Website / NFC sticker
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: Started the washer from the widget, but no reminder came …
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: wa:sh version (Releases or HACS), phone and OS version, Home Assistant version if relevant.
+      placeholder: wa:sh 0.6.0 · Fairphone 6, Android 16 · HA 2026.11
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics / logs (optional)
+      description: For the integration, “Download diagnostics” on the entry – it contains no pairing data.
+      render: text

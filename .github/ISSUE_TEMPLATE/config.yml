@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Home Assistant setup
+    url: https://github.com/K0RBI02/wa-sh/blob/main/docs/HOME-ASSISTANT.md
+    about: Installing, pairing and example automations.
